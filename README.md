@@ -1,4 +1,4 @@
-# A37 BombAppetit
+# A37 BombAppetit Project Readme
 
 ## Team
 
