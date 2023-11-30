@@ -3,6 +3,7 @@ package main.java.secure_document;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.SimpleDateFormat;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
@@ -16,6 +17,7 @@ import java.util.Base64;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 
 public class Protect {
 
@@ -51,7 +53,7 @@ public class Protect {
         String encryptedSymmetricKey = cipherSymmetricKey(symmetricKey, userPublicKey);
 
         // Nonce Integration
-        String nonce = generateNonce();
+        String nonce = generateNonce(cipherResult.iv);
 
         // Digital Signature
         String dataToSign = originalJson + "," + cipherResult.encryptedVoucher + "," + Base64.getEncoder().encodeToString(cipherResult.iv) + "," + encryptedSymmetricKey + "," + nonce;
@@ -114,10 +116,17 @@ public class Protect {
         return Base64.getEncoder().encodeToString(signatureBytes);
     }
 
-    private static String generateNonce() {
-        // Implement your logic to generate a nonce (timestamp + random number)
-        // Return the generated nonce as a string
-        return "<timestamp_random>";
+    private static String generateNonce(byte[] iv) {
+        String timestamp = generateTimestamp(); // Current timestamp
+        //int randomPart = new Random().nextInt(Integer.MAX_VALUE); // Random number
+
+        // Combine timestamp, random number, and IV
+        return timestamp + "_" + Base64.getEncoder().encodeToString(iv);
+    }
+
+    private static String generateTimestamp() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        return dateFormat.format(new Date());
     }
 
     private static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {
