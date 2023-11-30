@@ -5,6 +5,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.*;
+import javax.crypto.spec.GCMParameterSpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -44,7 +45,7 @@ public class Protect {
         // Cipher Voucher (Symmetric Encryption)
         //String voucherInfo = originalJson; // For simplicity, using the entire JSON as voucher information
         String voucherInfo = JsonParser.parseString(originalJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonObject("mealVoucher").toString();
-        String encryptedVoucher = cipherVoucher(voucherInfo, symmetricKey);
+        CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
 
         // Cipher Symmetric Key (Asymmetric Encryption)
         String encryptedSymmetricKey = cipherSymmetricKey(symmetricKey, userPublicKey);
@@ -53,13 +54,14 @@ public class Protect {
         String nonce = generateNonce();
 
         // Digital Signature
-        String dataToSign = originalJson + encryptedVoucher + encryptedSymmetricKey + nonce;
+        String dataToSign = originalJson + "," + cipherResult.encryptedVoucher + "," + Base64.getEncoder().encodeToString(cipherResult.iv) + "," + encryptedSymmetricKey + "," + nonce;
         String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
 
         // Build the ciphered JSON dynamically
         JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
         JsonObject mealVoucherObject = new JsonObject();
-        mealVoucherObject.addProperty("encryptedVoucher", encryptedVoucher);
+        mealVoucherObject.addProperty("encryptedVoucher", cipherResult.encryptedVoucher);
+        mealVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
         mealVoucherObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
         mealVoucherObject.addProperty("nonce", nonce);
         mealVoucherObject.addProperty("signature", digitalSignature);
@@ -79,12 +81,22 @@ public class Protect {
         return keyGenerator.generateKey();
     }
 
-    private static String cipherVoucher(String voucherInfo, SecretKey symmetricKey) throws Exception {
-        // Add random IV to the ciphered voucher
+    private static CipherResult cipherVoucher(String voucherInfo, SecretKey symmetricKey) throws Exception {
+        // Generate a random IV
+        SecureRandom random = new SecureRandom();
+        byte[] iv = new byte[12]; // GCM recommended IV size is 12 bytes
+        random.nextBytes(iv);
+
+        // Initialize cipher with the generated IV
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        cipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
+        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, iv);
+        cipher.init(Cipher.ENCRYPT_MODE, symmetricKey, gcmParameterSpec);
+
+        // Encrypt the voucher information
         byte[] encryptedVoucher = cipher.doFinal(voucherInfo.getBytes());
-        return Base64.getEncoder().encodeToString(encryptedVoucher);
+
+        // Return the result, including the IV
+        return new CipherResult(Base64.getEncoder().encodeToString(encryptedVoucher), iv);
     }
 
     private static String cipherSymmetricKey(SecretKey symmetricKey, PublicKey userPublicKey) throws Exception {
@@ -120,5 +132,15 @@ public class Protect {
         X509EncodedKeySpec pubSpec = new X509EncodedKeySpec(pubEncoded);
         KeyFactory keyFacPub = KeyFactory.getInstance("RSA");
         return keyFacPub.generatePublic(pubSpec);
+    }
+
+    private static class CipherResult {
+        String encryptedVoucher;
+        byte[] iv;
+
+        CipherResult(String encryptedVoucher, byte[] iv) {
+            this.encryptedVoucher = encryptedVoucher;
+            this.iv = iv;
+        }
     }
 }
