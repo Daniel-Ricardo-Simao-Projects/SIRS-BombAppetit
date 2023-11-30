@@ -1,6 +1,9 @@
 package main.java.secure_document;
 
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
 import javax.crypto.*;
 
 import com.google.gson.Gson;
@@ -17,32 +20,30 @@ public class Protect {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.out.println("Usage: protect <inputJsonFile> <outputJsonFile>");
+            System.out.println("Usage: protect <inputJsonFile> <restaurantePrivateKey> <userPublicKey> <outputJsonFile>");
             return;
         }
 
         try {
             String originalJson = new String(Files.readAllBytes(Paths.get(args[0])));
-            protect(originalJson, args[1]);
+            protect(originalJson, args[1], args[2], args[3]);
             System.out.println("Ciphered JSON written to " + args[1]);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void protect(String originalJson, String outputJsonFile) throws Exception {
-        // Generate keys for testing purposes
-        KeyPair restaurantKeyPair = generateKeyPair();
-        KeyPair userKeyPair = generateKeyPair();
-
-        PrivateKey restaurantPrivateKey = restaurantKeyPair.getPrivate();
-        PublicKey userPublicKey = userKeyPair.getPublic();
+    public static void protect(String originalJson, String restaurantPrivKeyPath, String userPubKeyPath, String outputJsonFile) throws Exception {
+        // 
+        PrivateKey restaurantPrivateKey = readPrivateKey(restaurantPrivKeyPath);
+        PublicKey userPublicKey = readPublicKey(userPubKeyPath);
 
         // Symmetric Key Generation
         SecretKey symmetricKey = generateSymmetricKey();
 
         // Cipher Voucher (Symmetric Encryption)
-        String voucherInfo = originalJson; // For simplicity, using the entire JSON as voucher information
+        //String voucherInfo = originalJson; // For simplicity, using the entire JSON as voucher information
+        String voucherInfo = JsonParser.parseString(originalJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonObject("mealVoucher").toString();
         String encryptedVoucher = cipherVoucher(voucherInfo, symmetricKey);
 
         // Cipher Symmetric Key (Asymmetric Encryption)
@@ -70,12 +71,6 @@ public class Protect {
             gson.toJson(originalJsonObject, fileWriter);
         }
 
-    }
-
-    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048); // Key size 2048 bits
-        return keyPairGenerator.generateKeyPair();
     }
 
     private static SecretKey generateSymmetricKey() throws NoSuchAlgorithmException {
@@ -110,5 +105,19 @@ public class Protect {
         // Implement your logic to generate a nonce (timestamp + random number)
         // Return the generated nonce as a string
         return "<timestamp_random>";
+    }
+
+    private static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {
+        byte[] privEncoded = Files.readAllBytes(Paths.get(privateKeyPath));
+        PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(privEncoded);
+        KeyFactory keyFacPriv = KeyFactory.getInstance("RSA");
+        return keyFacPriv.generatePrivate(privSpec);
+    }
+
+    private static PublicKey readPublicKey(String publicKeyPath) throws Exception {
+        byte[] pubEncoded = Files.readAllBytes(Paths.get(publicKeyPath));
+        X509EncodedKeySpec pubSpec = new X509EncodedKeySpec(pubEncoded);
+        KeyFactory keyFacPub = KeyFactory.getInstance("RSA");
+        return keyFacPub.generatePublic(pubSpec);
     }
 }
