@@ -125,15 +125,15 @@
 				<configuration>
 					<programs>
 						<program>
-							<mainClass>main.java.secure_document.Protect</mainClass>
+							<mainClass>main/java/secure_document/Protect</mainClass>
 							<name>protect</name>
 						</program>
 						<program>
-							<mainClass>main.java.secure_document.Check</mainClass>
+							<mainClass>main/java/secure_document/Check</mainClass>
 							<name>check</name>
 						</program>
 						<program>
-							<mainClass>main.java.secure_document.Unprotect</mainClass>
+							<mainClass>main/java/secure_document/Unprotect</mainClass>
 							<name>unprotect</name>
 						</program>
 					</programs>

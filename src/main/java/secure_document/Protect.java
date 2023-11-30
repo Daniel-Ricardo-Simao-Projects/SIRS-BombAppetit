@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 public class Protect {
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length != 4) {
             System.out.println("Usage: protect <inputJsonFile> <restaurantePrivateKey> <userPublicKey> <outputJsonFile>");
             return;
         }
@@ -80,6 +80,7 @@ public class Protect {
     }
 
     private static String cipherVoucher(String voucherInfo, SecretKey symmetricKey) throws Exception {
+        // Add random IV to the ciphered voucher
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
         byte[] encryptedVoucher = cipher.doFinal(voucherInfo.getBytes());
