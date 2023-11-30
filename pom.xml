@@ -136,6 +136,10 @@
 							<mainClass>main/java/secure_document/Unprotect</mainClass>
 							<name>unprotect</name>
 						</program>
+						<program>
+							<mainClass>main/java/secure_document/Help</mainClass>
+							<name>help</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>
