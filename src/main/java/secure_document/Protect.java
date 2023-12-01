@@ -56,8 +56,9 @@ public class Protect {
         String nonce = generateNonce(cipherResult.iv);
 
         // Digital Signature
-        String dataToSign = originalJson + "," + cipherResult.encryptedVoucher + "," + Base64.getEncoder().encodeToString(cipherResult.iv) + "," + encryptedSymmetricKey + "," + nonce;
-        String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
+        //String dataToSign = originalJson + "," + cipherResult.encryptedVoucher + "," + Base64.getEncoder().encodeToString(cipherResult.iv) + "," + encryptedSymmetricKey + "," + nonce;
+        //System.out.println(dataToSign);
+        //String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
 
         // Build the ciphered JSON dynamically
         JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
@@ -66,8 +67,12 @@ public class Protect {
         mealVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
         mealVoucherObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
         mealVoucherObject.addProperty("nonce", nonce);
-        mealVoucherObject.addProperty("signature", digitalSignature);
+        //mealVoucherObject.addProperty("signature", digitalSignature);
         originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVoucher", mealVoucherObject);
+        
+        // digital signature
+        String digitalSignature = createDigitalSignature(originalJsonObject.toString(), restaurantPrivateKey);
+        originalJsonObject.addProperty("signature", digitalSignature);
 
         // Write JSON object to file using Gson
         try (FileWriter fileWriter = new FileWriter(outputJsonFile)) {
