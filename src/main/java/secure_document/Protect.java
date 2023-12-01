@@ -138,9 +138,9 @@ public class Protect {
     }
 
     private static String generateRandom() {
-        byte[] randomBytes = new byte[16];
+        byte[] randomBytes = new byte[12];
         new SecureRandom().nextBytes(randomBytes);
-        return randomBytes.toString();
+        return Base64.getEncoder().encodeToString(randomBytes);
     }
 
     private static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {

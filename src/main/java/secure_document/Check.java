@@ -69,7 +69,7 @@ public class Check {
         long currTime = Instant.now().toEpochMilli();
         String[] splitStrings = nonce.split(" ");
         long timestamp = Long.parseLong(splitStrings[0]);
-        String random = splitStrings[1];
+        String random = splitStrings[1]; // TODO
 
         if (timestamp >= tenSecAgo && timestamp <= currTime) {
             System.out.println("nonce timestamp is valid");
