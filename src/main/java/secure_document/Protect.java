@@ -4,6 +4,7 @@ import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
@@ -122,16 +123,24 @@ public class Protect {
     }
 
     private static String generateNonce(byte[] iv) {
-        String timestamp = generateTimestamp(); // Current timestamp
+        //String timestamp = generateTimestamp(); // Current timestamp
         //int randomPart = new Random().nextInt(Integer.MAX_VALUE); // Random number
-
+        long timestamp = generateTimestamp();
+        String random = generateRandom();
         // Combine timestamp, random number, and IV
-        return timestamp + "_" + Base64.getEncoder().encodeToString(iv);
+        return timestamp + " " + random;
     }
 
-    private static String generateTimestamp() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        return dateFormat.format(new Date());
+    private static long generateTimestamp() {
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        //return dateFormat.format(new Date());
+        return Instant.now().toEpochMilli();
+    }
+
+    private static String generateRandom() {
+        byte[] randomBytes = new byte[16];
+        new SecureRandom().nextBytes(randomBytes);
+        return randomBytes.toString();
     }
 
     private static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {

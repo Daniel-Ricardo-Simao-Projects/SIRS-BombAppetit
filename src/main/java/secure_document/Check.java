@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -15,10 +14,10 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.Base64;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -45,13 +44,14 @@ public class Check {
 
             PublicKey publicKey = readPublicKey(args[1]);
 
-            check(json, publicKey, signature);
+            checkSignature(json, publicKey, signature);
+            checkNonce(nonce);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void check(String json, PublicKey publicKey, String signature) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public static void checkSignature(String json, PublicKey publicKey, String signature) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         Signature sig = Signature.getInstance("SHA256withRSA");
         sig.initVerify(publicKey);
         sig.update(json.getBytes());
@@ -62,9 +62,24 @@ public class Check {
             System.out.println("Signature is invalid");
             return;
         }
-
     }
 
+    public static void checkNonce(String nonce) {
+        long tenSecAgo = Instant.now().minusMillis(10000).toEpochMilli();
+        long currTime = Instant.now().toEpochMilli();
+        String[] splitStrings = nonce.split(" ");
+        long timestamp = Long.parseLong(splitStrings[0]);
+        String random = splitStrings[1];
+
+        if (timestamp >= tenSecAgo && timestamp <= currTime) {
+            System.out.println("nonce timestamp is valid");
+        } else {
+            System.out.println("nonce timestamp is invalid");
+        }
+
+        System.out.println(currTime - timestamp);
+        
+    }
 
 
     public static PublicKey readPublicKey(String publicKeyPath) throws Exception {
