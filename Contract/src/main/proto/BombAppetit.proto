@@ -1,0 +1,14 @@
+syntax = "proto3";
+package proto.bombappetit;
+
+service BombAppetit {
+    rpc Bomb (BombRequest) returns (BombResponse) {}
+}
+
+message BombRequest {
+    string message = 1;
+}
+
+message BombResponse {
+    string message = 1;
+}
