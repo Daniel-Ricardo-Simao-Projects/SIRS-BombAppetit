@@ -1,4 +1,4 @@
-package main.java.service;
+package service;
 
 import io.grpc.stub.StreamObserver;
 import proto.bombappetit.BombAppetitGrpc;

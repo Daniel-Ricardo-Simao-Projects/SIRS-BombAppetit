@@ -15,7 +15,7 @@ public final class BombAppetitOuterClass {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   public interface BombRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:proto.bombappetit.BombRequest)
+      // @@protoc_insertion_point(interface_extends:BombRequest)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -29,13 +29,19 @@ public final class BombAppetitOuterClass {
      */
     com.google.protobuf.ByteString
         getMessageBytes();
+
+    /**
+     * <code>int32 number = 2;</code>
+     * @return The number.
+     */
+    int getNumber();
   }
   /**
-   * Protobuf type {@code proto.bombappetit.BombRequest}
+   * Protobuf type {@code BombRequest}
    */
   public  static final class BombRequest extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:proto.bombappetit.BombRequest)
+      // @@protoc_insertion_point(message_implements:BombRequest)
       BombRequestOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use BombRequest.newBuilder() to construct.
@@ -82,6 +88,11 @@ public final class BombAppetitOuterClass {
               message_ = s;
               break;
             }
+            case 16: {
+
+              number_ = input.readInt32();
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -103,13 +114,13 @@ public final class BombAppetitOuterClass {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombRequest_descriptor;
+      return proto.bombappetit.BombAppetitOuterClass.internal_static_BombRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombRequest_fieldAccessorTable
+      return proto.bombappetit.BombAppetitOuterClass.internal_static_BombRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               proto.bombappetit.BombAppetitOuterClass.BombRequest.class, proto.bombappetit.BombAppetitOuterClass.BombRequest.Builder.class);
     }
@@ -150,6 +161,16 @@ public final class BombAppetitOuterClass {
       }
     }
 
+    public static final int NUMBER_FIELD_NUMBER = 2;
+    private int number_;
+    /**
+     * <code>int32 number = 2;</code>
+     * @return The number.
+     */
+    public int getNumber() {
+      return number_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -167,6 +188,9 @@ public final class BombAppetitOuterClass {
       if (!getMessageBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, message_);
       }
+      if (number_ != 0) {
+        output.writeInt32(2, number_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -178,6 +202,10 @@ public final class BombAppetitOuterClass {
       size = 0;
       if (!getMessageBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, message_);
+      }
+      if (number_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, number_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -196,6 +224,8 @@ public final class BombAppetitOuterClass {
 
       if (!getMessage()
           .equals(other.getMessage())) return false;
+      if (getNumber()
+          != other.getNumber()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -209,6 +239,8 @@ public final class BombAppetitOuterClass {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
       hash = (53 * hash) + getMessage().hashCode();
+      hash = (37 * hash) + NUMBER_FIELD_NUMBER;
+      hash = (53 * hash) + getNumber();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -305,21 +337,21 @@ public final class BombAppetitOuterClass {
       return builder;
     }
     /**
-     * Protobuf type {@code proto.bombappetit.BombRequest}
+     * Protobuf type {@code BombRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:proto.bombappetit.BombRequest)
+        // @@protoc_insertion_point(builder_implements:BombRequest)
         proto.bombappetit.BombAppetitOuterClass.BombRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombRequest_descriptor;
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombRequest_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombRequest_fieldAccessorTable
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 proto.bombappetit.BombAppetitOuterClass.BombRequest.class, proto.bombappetit.BombAppetitOuterClass.BombRequest.Builder.class);
       }
@@ -344,13 +376,15 @@ public final class BombAppetitOuterClass {
         super.clear();
         message_ = "";
 
+        number_ = 0;
+
         return this;
       }
 
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombRequest_descriptor;
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombRequest_descriptor;
       }
 
       @java.lang.Override
@@ -371,6 +405,7 @@ public final class BombAppetitOuterClass {
       public proto.bombappetit.BombAppetitOuterClass.BombRequest buildPartial() {
         proto.bombappetit.BombAppetitOuterClass.BombRequest result = new proto.bombappetit.BombAppetitOuterClass.BombRequest(this);
         result.message_ = message_;
+        result.number_ = number_;
         onBuilt();
         return result;
       }
@@ -422,6 +457,9 @@ public final class BombAppetitOuterClass {
         if (!other.getMessage().isEmpty()) {
           message_ = other.message_;
           onChanged();
+        }
+        if (other.getNumber() != 0) {
+          setNumber(other.getNumber());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -527,6 +565,36 @@ public final class BombAppetitOuterClass {
         onChanged();
         return this;
       }
+
+      private int number_ ;
+      /**
+       * <code>int32 number = 2;</code>
+       * @return The number.
+       */
+      public int getNumber() {
+        return number_;
+      }
+      /**
+       * <code>int32 number = 2;</code>
+       * @param value The number to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNumber(int value) {
+        
+        number_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 number = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearNumber() {
+        
+        number_ = 0;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -540,10 +608,10 @@ public final class BombAppetitOuterClass {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:proto.bombappetit.BombRequest)
+      // @@protoc_insertion_point(builder_scope:BombRequest)
     }
 
-    // @@protoc_insertion_point(class_scope:proto.bombappetit.BombRequest)
+    // @@protoc_insertion_point(class_scope:BombRequest)
     private static final proto.bombappetit.BombAppetitOuterClass.BombRequest DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new proto.bombappetit.BombAppetitOuterClass.BombRequest();
@@ -581,7 +649,7 @@ public final class BombAppetitOuterClass {
   }
 
   public interface BombResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:proto.bombappetit.BombResponse)
+      // @@protoc_insertion_point(interface_extends:BombResponse)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -597,11 +665,11 @@ public final class BombAppetitOuterClass {
         getMessageBytes();
   }
   /**
-   * Protobuf type {@code proto.bombappetit.BombResponse}
+   * Protobuf type {@code BombResponse}
    */
   public  static final class BombResponse extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:proto.bombappetit.BombResponse)
+      // @@protoc_insertion_point(message_implements:BombResponse)
       BombResponseOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use BombResponse.newBuilder() to construct.
@@ -669,13 +737,13 @@ public final class BombAppetitOuterClass {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombResponse_descriptor;
+      return proto.bombappetit.BombAppetitOuterClass.internal_static_BombResponse_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombResponse_fieldAccessorTable
+      return proto.bombappetit.BombAppetitOuterClass.internal_static_BombResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               proto.bombappetit.BombAppetitOuterClass.BombResponse.class, proto.bombappetit.BombAppetitOuterClass.BombResponse.Builder.class);
     }
@@ -871,21 +939,21 @@ public final class BombAppetitOuterClass {
       return builder;
     }
     /**
-     * Protobuf type {@code proto.bombappetit.BombResponse}
+     * Protobuf type {@code BombResponse}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:proto.bombappetit.BombResponse)
+        // @@protoc_insertion_point(builder_implements:BombResponse)
         proto.bombappetit.BombAppetitOuterClass.BombResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombResponse_descriptor;
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombResponse_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombResponse_fieldAccessorTable
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 proto.bombappetit.BombAppetitOuterClass.BombResponse.class, proto.bombappetit.BombAppetitOuterClass.BombResponse.Builder.class);
       }
@@ -916,7 +984,7 @@ public final class BombAppetitOuterClass {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return proto.bombappetit.BombAppetitOuterClass.internal_static_proto_bombappetit_BombResponse_descriptor;
+        return proto.bombappetit.BombAppetitOuterClass.internal_static_BombResponse_descriptor;
       }
 
       @java.lang.Override
@@ -1106,10 +1174,10 @@ public final class BombAppetitOuterClass {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:proto.bombappetit.BombResponse)
+      // @@protoc_insertion_point(builder_scope:BombResponse)
     }
 
-    // @@protoc_insertion_point(class_scope:proto.bombappetit.BombResponse)
+    // @@protoc_insertion_point(class_scope:BombResponse)
     private static final proto.bombappetit.BombAppetitOuterClass.BombResponse DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new proto.bombappetit.BombAppetitOuterClass.BombResponse();
@@ -1147,15 +1215,15 @@ public final class BombAppetitOuterClass {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_proto_bombappetit_BombRequest_descriptor;
+    internal_static_BombRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_proto_bombappetit_BombRequest_fieldAccessorTable;
+      internal_static_BombRequest_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_proto_bombappetit_BombResponse_descriptor;
+    internal_static_BombResponse_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_proto_bombappetit_BombResponse_fieldAccessorTable;
+      internal_static_BombResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1165,28 +1233,27 @@ public final class BombAppetitOuterClass {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\021BombAppetit.proto\022\021proto.bombappetit\"\036" +
-      "\n\013BombRequest\022\017\n\007message\030\001 \001(\t\"\037\n\014BombRe" +
-      "sponse\022\017\n\007message\030\001 \001(\t2X\n\013BombAppetit\022I" +
-      "\n\004Bomb\022\036.proto.bombappetit.BombRequest\032\037" +
-      ".proto.bombappetit.BombResponse\"\000b\006proto" +
-      "3"
+      "\n\021BombAppetit.proto\".\n\013BombRequest\022\017\n\007me" +
+      "ssage\030\001 \001(\t\022\016\n\006number\030\002 \001(\005\"\037\n\014BombRespo" +
+      "nse\022\017\n\007message\030\001 \001(\t24\n\013BombAppetit\022%\n\004B" +
+      "omb\022\014.BombRequest\032\r.BombResponse\"\000B\023\n\021pr" +
+      "oto.bombappetitb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_proto_bombappetit_BombRequest_descriptor =
+    internal_static_BombRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_proto_bombappetit_BombRequest_fieldAccessorTable = new
+    internal_static_BombRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_proto_bombappetit_BombRequest_descriptor,
-        new java.lang.String[] { "Message", });
-    internal_static_proto_bombappetit_BombResponse_descriptor =
+        internal_static_BombRequest_descriptor,
+        new java.lang.String[] { "Message", "Number", });
+    internal_static_BombResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_proto_bombappetit_BombResponse_fieldAccessorTable = new
+    internal_static_BombResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_proto_bombappetit_BombResponse_descriptor,
+        internal_static_BombResponse_descriptor,
         new java.lang.String[] { "Message", });
   }
 

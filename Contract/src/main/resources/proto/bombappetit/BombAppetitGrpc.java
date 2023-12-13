@@ -24,7 +24,7 @@ public final class BombAppetitGrpc {
 
   private BombAppetitGrpc() {}
 
-  public static final String SERVICE_NAME = "proto.bombappetit.BombAppetit";
+  public static final String SERVICE_NAME = "BombAppetit";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<proto.bombappetit.BombAppetitOuterClass.BombRequest,
@@ -45,7 +45,7 @@ public final class BombAppetitGrpc {
               io.grpc.MethodDescriptor.<proto.bombappetit.BombAppetitOuterClass.BombRequest, proto.bombappetit.BombAppetitOuterClass.BombResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
-                  "proto.bombappetit.BombAppetit", "Bomb"))
+                  "BombAppetit", "Bomb"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   proto.bombappetit.BombAppetitOuterClass.BombRequest.getDefaultInstance()))

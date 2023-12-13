@@ -1,8 +1,6 @@
-package main.java;
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import main.java.service.BombAppetit;
+import service.BombAppetit;
 
 public class UserMain {
     public static void main(String[] args) {

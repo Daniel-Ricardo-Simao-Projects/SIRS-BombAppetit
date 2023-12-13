@@ -1,5 +1,5 @@
 syntax = "proto3";
-package proto.bombappetit;
+option java_package = "proto.bombappetit";
 
 service BombAppetit {
     rpc Bomb (BombRequest) returns (BombResponse) {}
@@ -7,6 +7,7 @@ service BombAppetit {
 
 message BombRequest {
     string message = 1;
+    int32 number = 2;
 }
 
 message BombResponse {

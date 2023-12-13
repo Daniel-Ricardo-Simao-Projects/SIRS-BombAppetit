@@ -1,8 +1,6 @@
-package main.java;
-
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import main.java.service.BombAppetitImpl;
+import service.BombAppetitImpl;
 
 public class ServerMain {
     public static void main(String[] args) {
