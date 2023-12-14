@@ -29,7 +29,18 @@ public class BombAppetit {
     }
     
     public void getRestaurants() {
-        System.out.println("getRestaurants");
+        
+        proto.bombappetit.BombAppetitOuterClass.ListRestaurantsRequest request = proto.bombappetit.BombAppetitOuterClass.ListRestaurantsRequest
+                .newBuilder()
+                .build();
+
+        proto.bombappetit.BombAppetitOuterClass.ListRestaurantsResponse response = stub.listRestaurants(request);
+
+        System.out.println("\nRestaurants Available:");
+        for (String restaurant : response.getRestaurantsList()) {
+            System.out.println("- " + restaurant);
+        }
+
     }
 
     public boolean shutdown() {
