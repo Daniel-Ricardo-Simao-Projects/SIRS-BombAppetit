@@ -16,7 +16,8 @@ public class BombAppetit {
 
     public boolean sendMessage() {
 
-        proto.bombappetit.BombAppetitOuterClass.BombRequest request = proto.bombappetit.BombAppetitOuterClass.BombRequest.newBuilder()
+        proto.bombappetit.BombAppetitOuterClass.BombRequest request = proto.bombappetit.BombAppetitOuterClass.BombRequest
+                .newBuilder()
                 .setMessage("This is a message")
                 .build();
 
@@ -25,6 +26,10 @@ public class BombAppetit {
         System.out.println(response);
 
         return true;
+    }
+    
+    public void getRestaurants() {
+        System.out.println("getRestaurants");
     }
 
     public boolean shutdown() {
