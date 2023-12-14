@@ -1,15 +1,31 @@
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+
 import service.BombAppetit;
 
 public class UserMain {
     public static void main(String[] args) {
         try {
             System.out.println("Starting user...");
-            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5000)
-                    .usePlaintext()
-                    .build();
-            BombAppetit secureCommunication = new BombAppetit(channel);
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(Files.newInputStream(Paths.get("src/main/resources/user.truststore")), "changeme".toCharArray());
+            X509Certificate CACertificate = (X509Certificate) trustStore.getCertificate("ca");
+            X509Certificate serverCertificate = (X509Certificate) trustStore.getCertificate("server");
+
+            SslContext sslContext = GrpcSslContexts.configure(SslContextBuilder.forClient().trustManager(serverCertificate, CACertificate)).build();
+
+            String target = "localhost" + ":" + 5000;
+            ManagedChannel channel = NettyChannelBuilder.forTarget(target).sslContext(sslContext).build();
+            BombAppetit bombAppetit = new BombAppetit(channel);
+
             char option = '1';
             System.out.println("\n\tWELCOME TO BOMB APPETIT");
            while (option != '0') {
@@ -18,16 +34,16 @@ public class UserMain {
                 System.in.read();
                 switch (option) {
                     case '5':
-                        //secureCommunication.doReview();
+                        //bombAppetit.doReview();
                         break;
                     case '4':
-                        //secureCommunication.sendVoucher();
+                        //bombAppetit.sendVoucher();
                         break;
                     case '3':
-                        //secureCommunication.useVoucher();
+                        //bombAppetit.useVoucher();
                         break;
                     case '2':
-                        //secureCommunication.checkAvailableVouchers();
+                        //bombAppetit.checkAvailableVouchers();
                         break;
                     case '1':
                         while (option != '0') {
@@ -36,16 +52,16 @@ public class UserMain {
                             System.in.read();
                             switch (option) {
                                 case '4':
-                                    //secureCommunication.getRestaurantVouchers();
+                                    //bombAppetit.getRestaurantVouchers();
                                     break;
                                 case '3':
-                                    //secureCommunication.getRestaurantReviews();
+                                    //bombAppetit.getRestaurantReviews();
                                     break;
                                 case '2':
-                                    //secureCommunication.getRestaurantMenu();
+                                    //bombAppetit.getRestaurantMenu();
                                     break;
                                 case '1':
-                                    secureCommunication.getRestaurants();
+                                    bombAppetit.getRestaurants();
                                     break;
                                 case '0':
                                     break;
