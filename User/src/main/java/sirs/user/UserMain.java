@@ -1,3 +1,5 @@
+package sirs.user;
+
 import io.grpc.ManagedChannel;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
@@ -9,7 +11,7 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
-import service.BombAppetit;
+import sirs.user.service.BombAppetit;
 
 public class UserMain {
     public static void main(String[] args) {

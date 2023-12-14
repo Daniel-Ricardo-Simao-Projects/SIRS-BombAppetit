@@ -1,9 +1,16 @@
-package service;
+package sirs.server.service;
+
+import java.util.ArrayList;
 
 import io.grpc.stub.StreamObserver;
 import proto.bombappetit.BombAppetitGrpc;
 import proto.bombappetit.BombAppetitOuterClass;
+import sirs.server.ServerState;
+
 public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
+
+    private static ServerState server;
+
     @Override
     public void bomb(BombAppetitOuterClass.BombRequest request,
             StreamObserver<BombAppetitOuterClass.BombResponse> responseObserver) {
@@ -22,6 +29,8 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         // grab all restaurants from the database from the user who is requesting
         String user = request.getUser();
         System.out.println(user);
+
+        server.getAllRestaurants();
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()

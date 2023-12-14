@@ -1,3 +1,5 @@
+package sirs.server;
+
 import io.grpc.Server;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
@@ -11,7 +13,7 @@ import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
-import service.BombAppetitImpl;
+import sirs.server.service.BombAppetitImpl;
 
 public class ServerMain {
     public static void main(String[] args) {

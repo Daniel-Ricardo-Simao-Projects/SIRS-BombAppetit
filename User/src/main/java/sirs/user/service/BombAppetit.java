@@ -1,4 +1,4 @@
-package service;
+package sirs.user.service;
 
 import io.grpc.ManagedChannel;
 import proto.bombappetit.BombAppetitGrpc;
