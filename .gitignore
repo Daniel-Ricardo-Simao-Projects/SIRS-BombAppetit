@@ -595,4 +595,4 @@ fabric.properties
 Secure-document/outputs/
 .idea/
 
-Contract/src/main/resources
+Contract/src/main/resources/
