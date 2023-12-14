@@ -46,22 +46,30 @@ public class UserMain {
                         //bombAppetit.checkAvailableVouchers();
                         break;
                     case '1':
+                        bombAppetit.listAllRestaurants();
+                        System.out.print("\nChoose a restaurant. If you want to go back, type 0: ");
+                        String restaurantName = System.console().readLine();
+                        if (restaurantName.equals("0")) {
+                            break;
+                        }
                         while (option != '0') {
                             showRestaurantsInformationMenu();
                             option = (char) System.in.read();
                             System.in.read();
                             switch (option) {
                                 case '4':
-                                    //bombAppetit.getRestaurantVouchers();
+                                    //change restaurant name
+                                    System.out.print("\nChoose a restaurant: ");
+                                    restaurantName = System.console().readLine();
                                     break;
                                 case '3':
-                                    //bombAppetit.getRestaurantReviews();
+                                    //bombAppetit.getRestaurantVouchers(restaurantName);
                                     break;
                                 case '2':
-                                    //bombAppetit.getRestaurantMenu();
+                                    //bombAppetit.getRestaurantReviews(restauranteName);
                                     break;
                                 case '1':
-                                    bombAppetit.getRestaurants();
+                                    //bombAppetit.getRestaurantMenu(restauranteName);
                                     break;
                                 case '0':
                                     break;
@@ -100,10 +108,10 @@ public class UserMain {
 
     private static void showRestaurantsInformationMenu() {
         System.out.println("\n------------------ Info -----------------");
-        System.out.println("| 1 - Get restaurants\t\t\t|");
-        System.out.println("| 2 - Get restaurant menu\t\t|");
-        System.out.println("| 3 - Get restaurant reviews\t\t|");
-        System.out.println("| 4 - Get restaurant vouchers\t\t|");
+        System.out.println("| 1 - Get restaurant menu\t\t|");
+        System.out.println("| 2 - Get restaurant reviews\t\t|");
+        System.out.println("| 3 - Get restaurant vouchers\t\t|");
+        System.out.println("| 4 - Change restaurant\t\t\t|");
         System.out.println("| 0 - Back\t\t\t\t|");
         System.out.println("-----------------------------------------");
         System.out.print("\nChoose an option: ");

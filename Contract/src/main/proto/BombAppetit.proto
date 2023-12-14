@@ -3,7 +3,8 @@ option java_package = "proto.bombappetit";
 
 service BombAppetit {
     rpc Bomb (BombRequest) returns (BombResponse) {}
-    rpc ListRestaurants (ListRestaurantsRequest) returns (ListRestaurantsResponse) {}
+    rpc AllRestaurants (AllRestaurantsRequest) returns (AllRestaurantsResponse) {}
+    rpc Restaurant (RestaurantRequest) returns (RestaurantResponse) {}
 }
 
 message BombRequest {
@@ -15,9 +16,19 @@ message BombResponse {
     string message = 1;
 }
 
-message ListRestaurantsRequest {
+message AllRestaurantsRequest {
+    string user = 1;
 }
 
-message ListRestaurantsResponse {
+message AllRestaurantsResponse {
     repeated string restaurants = 1;
+}
+
+message RestaurantRequest {
+    string user = 1;
+    string restaurantName = 2;
+}
+
+message RestaurantResponse {
+    string restaurant = 1;
 }

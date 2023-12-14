@@ -9,9 +9,12 @@ public class BombAppetit {
 
     private BombAppetitGrpc.BombAppetitBlockingStub stub;
 
+    private String user;
+
     public BombAppetit(ManagedChannel channel) {
         this.channel = channel;
         stub = BombAppetitGrpc.newBlockingStub(channel);
+        user = "user";
     }
 
     public boolean sendMessage() {
@@ -28,19 +31,34 @@ public class BombAppetit {
         return true;
     }
     
-    public void getRestaurants() {
-        
-        proto.bombappetit.BombAppetitOuterClass.ListRestaurantsRequest request = proto.bombappetit.BombAppetitOuterClass.ListRestaurantsRequest
+    public void listAllRestaurants() {
+
+        proto.bombappetit.BombAppetitOuterClass.AllRestaurantsRequest request = proto.bombappetit.BombAppetitOuterClass.AllRestaurantsRequest
                 .newBuilder()
+                .setUser(user)
                 .build();
 
-        proto.bombappetit.BombAppetitOuterClass.ListRestaurantsResponse response = stub.listRestaurants(request);
+        proto.bombappetit.BombAppetitOuterClass.AllRestaurantsResponse response = stub.allRestaurants(request);
 
         System.out.println("\nRestaurants Available:");
         for (String restaurant : response.getRestaurantsList()) {
             System.out.println("- " + restaurant);
         }
 
+    }
+    
+    public void getRestaurantInfo(String restaurantName) {
+
+        proto.bombappetit.BombAppetitOuterClass.RestaurantRequest request = proto.bombappetit.BombAppetitOuterClass.RestaurantRequest
+                .newBuilder()
+                .setRestaurantName(restaurantName)
+                .setUser(user)
+                .build();
+
+        proto.bombappetit.BombAppetitOuterClass.RestaurantResponse response = stub.restaurant(request);
+
+        System.out.println("\nRestaurant Information:");
+        System.out.println(response);
     }
 
     public boolean shutdown() {
