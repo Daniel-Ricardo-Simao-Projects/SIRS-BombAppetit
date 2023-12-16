@@ -38,7 +38,18 @@ INSERT INTO clients (username, restaurant) VALUES
                     "currency": "EUR"
                 }
             ],
-            "reviews": [],
+            "reviews": [
+                {
+                    "user": "John Doe",
+                    "rating": 4,
+                    "comment": "Great food and excellent service!"
+                },
+                {
+                    "user": "Emily Brown",
+                    "comment": "Not bad, but nothing extraordinary either.",
+                    "rating": 3
+                }
+            ],
             "mealVouchers": [
                 {
                     "code": "VOUCHER123",
@@ -79,7 +90,18 @@ INSERT INTO clients (username, restaurant) VALUES
                     "currency": "EUR"
                 }
             ],
-            "reviews": [],
+            "reviews": [
+                {
+                    "user": "Alice Smith",
+                    "comment": "The steak was amazing.",
+                    "rating": 4
+                },
+                {
+                    "user": "Bob Johnson",
+                    "comment": "Good service but the menu can be improved.",
+                    "rating": 3
+                }
+            ],
             "mealVouchers": [
                 {
                     "code": "VOUCHER456",

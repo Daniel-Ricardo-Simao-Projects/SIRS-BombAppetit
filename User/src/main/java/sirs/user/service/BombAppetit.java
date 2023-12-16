@@ -98,7 +98,14 @@ public class BombAppetit {
         System.out.println("\nReviews: ");
         for (JsonElement item : reviews) {
             JsonObject reviewItem = item.getAsJsonObject();
-            // TODO
+            String user = reviewItem.get("user").getAsString();
+            int rating = reviewItem.get("rating").getAsInt();
+            String comment = reviewItem.get("comment").getAsString();
+        
+            System.out.println("User: " + user);
+            System.out.println("Rating: " + rating);
+            System.out.println("Comment: " + comment);
+            System.out.println();
         }
     }
 

@@ -9,7 +9,7 @@ import sirs.server.ServerState;
 
 public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
-    private static ServerState server;
+    public static ServerState server;
 
     public BombAppetitImpl() {
         server = new ServerState();
