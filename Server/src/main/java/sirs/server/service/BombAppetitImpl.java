@@ -11,6 +11,10 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
     private static ServerState server;
 
+    public BombAppetitImpl() {
+        server = new ServerState();
+    }
+
     @Override
     public void bomb(BombAppetitOuterClass.BombRequest request,
             StreamObserver<BombAppetitOuterClass.BombResponse> responseObserver) {
@@ -30,12 +34,11 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         String user = request.getUser();
         System.out.println(user);
 
-        server.getAllRestaurants();
+        ArrayList<String> restaurants = server.getAllRestaurants();
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()
-                .addRestaurants("Dona Maria")
-                .addRestaurants("El Sabor Español")
+                .addAllRestaurants(restaurants)
                 .build();
 
         responseObserver.onNext(response);
