@@ -38,10 +38,13 @@ INSERT INTO clients (username, restaurant) VALUES
                     "currency": "EUR"
                 }
             ],
-            "mealVoucher": {
-                "code": "VOUCHER123",
-                "description": "Redeem this code for a 20% discount in the meal. Drinks not included."
-            }
+            "reviews": [],
+            "mealVouchers": [
+                {
+                    "code": "VOUCHER123",
+                    "description": "Redeem this code for a 20% discount in the meal. Drinks not included."
+                }
+            ]
         }
         }'::JSONB
     ),
@@ -54,32 +57,35 @@ INSERT INTO clients (username, restaurant) VALUES
             "address": "Calle de la Paz, 15, Madrid",
             "genre": ["Spanish", "Tapas"],
             "menu": [
-            {
-                "itemName": "Paella Valenciana",
-                "category": "Seafood",
-                "description": "Classic Spanish saffron-infused rice with a mix of seafood.",
-                "price": 27.99,
-                "currency": "EUR"
-            },
-            {
-                "itemName": "Patatas Bravas",
-                "category": "Appetizer",
-                "description": "Crispy fried potatoes served with a spicy tomato sauce.",
-                "price": 14.99,
-                "currency": "EUR"
-            },
-            {
-                "itemName": "Gazpacho",
-                "category": "Soup",
-                "description": "Chilled tomato-based soup with peppers, onions, and cucumbers.",
-                "price": 12.99,
-                "currency": "EUR"
-            }
+                {
+                    "itemName": "Paella Valenciana",
+                    "category": "Seafood",
+                    "description": "Classic Spanish saffron-infused rice with a mix of seafood.",
+                    "price": 27.99,
+                    "currency": "EUR"
+                },
+                {
+                    "itemName": "Patatas Bravas",
+                    "category": "Appetizer",
+                    "description": "Crispy fried potatoes served with a spicy tomato sauce.",
+                    "price": 14.99,
+                    "currency": "EUR"
+                },
+                {
+                    "itemName": "Gazpacho",
+                    "category": "Soup",
+                    "description": "Chilled tomato-based soup with peppers, onions, and cucumbers.",
+                    "price": 12.99,
+                    "currency": "EUR"
+                }
             ],
-            "mealVoucher": {
-            "code": "VOUCHER456",
-            "description": "Enjoy a 15% discount on your meal with this voucher. Limited to one use per visit."
-            }
+            "reviews": [],
+            "mealVouchers": [
+                {
+                    "code": "VOUCHER456",
+                    "description": "Enjoy a 15% discount on your meal with this voucher. Limited to one use per visit."
+                }
+            ]
         }
         }'::JSONB
     );

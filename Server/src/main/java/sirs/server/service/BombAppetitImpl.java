@@ -14,17 +14,6 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
     public BombAppetitImpl() {
         server = new ServerState();
     }
-
-    @Override
-    public void bomb(BombAppetitOuterClass.BombRequest request,
-            StreamObserver<BombAppetitOuterClass.BombResponse> responseObserver) {
-        System.out.println(request);
-        BombAppetitOuterClass.BombResponse response = BombAppetitOuterClass.BombResponse.newBuilder()
-                .setMessage("Hello " + request.getMessage())
-                .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-    }
     
     @Override
     public void allRestaurants(BombAppetitOuterClass.AllRestaurantsRequest request,
@@ -32,9 +21,9 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
         // grab all restaurants from the database from the user who is requesting
         String user = request.getUser();
-        System.out.println(user);
+        //System.out.println(user);
 
-        ArrayList<String> restaurants = server.getAllRestaurants();
+        ArrayList<String> restaurants = server.getAllRestaurants(user);
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()
@@ -48,16 +37,17 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
     @Override
     public void restaurant(BombAppetitOuterClass.RestaurantRequest request,
             StreamObserver<BombAppetitOuterClass.RestaurantResponse> responseObserver) {
-        System.out.println(request);
+        //System.out.println(request);
 
         // grab the restaurant name from the request and look for it in the database
         String restaurantName = request.getRestaurantName();
         String user = request.getUser();
-        System.out.println(restaurantName);
-        System.out.println(user);
+        String restaurantJson = server.getRestaurant(user, restaurantName);
+        // System.out.println(restaurantJson);
 
         BombAppetitOuterClass.RestaurantResponse response = BombAppetitOuterClass.RestaurantResponse
                 .newBuilder()
+                .setRestaurant(restaurantJson)
                 .build();
 
         responseObserver.onNext(response);

@@ -2,18 +2,8 @@ syntax = "proto3";
 option java_package = "proto.bombappetit";
 
 service BombAppetit {
-    rpc Bomb (BombRequest) returns (BombResponse) {}
     rpc AllRestaurants (AllRestaurantsRequest) returns (AllRestaurantsResponse) {}
     rpc Restaurant (RestaurantRequest) returns (RestaurantResponse) {}
-}
-
-message BombRequest {
-    string message = 1;
-    int32 number = 2;
-}
-
-message BombResponse {
-    string message = 1;
 }
 
 message AllRestaurantsRequest {

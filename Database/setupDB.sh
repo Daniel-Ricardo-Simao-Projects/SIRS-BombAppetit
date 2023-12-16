@@ -9,7 +9,7 @@ openssl genrsa -out root.key
 openssl genrsa -out server.key
 openssl genrsa -out user.key
 
-openssl req -new -key root.key -out root.csr
+openssl req -new -key root.key -out root.csr -subj "/CN= "
 openssl req -new -key server.key -out server.csr -subj "/CN=192.168.0.30"
 openssl req -new -key user.key -out user.csr -subj "/CN=postgres"
 

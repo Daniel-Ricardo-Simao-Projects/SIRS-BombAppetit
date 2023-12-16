@@ -31,15 +31,15 @@ public class ServerState {
         }
     }
 
-    public ArrayList<String> getAllRestaurants() {
+    // get all restaurant json associated with client
+    public ArrayList<String> getAllRestaurants(String client) {
         ArrayList<String> restaurants = new ArrayList<>();
         try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.GET_ALL_RESTAURANTS)) {
+            pstmt.setString(1, client);
             ResultSet resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                String restaurant_name = resultSet.getString("restaurant_name");
-                restaurants.add(restaurant_name);
-                // Process the retrieved data, e.g., print it
-                //System.out.println("User ID: " + userId + ", Username: " + username + ", Created: " + created);
+                String restaurant = resultSet.getString("restaurant");
+                restaurants.add(restaurant);
             }
             resultSet.close();
             //System.out.println("Select query executed successfully!");
@@ -49,22 +49,25 @@ public class ServerState {
         return restaurants;
     }
 
-    public ArrayList<String> getRestaurantVouchers(String client) {
-        ArrayList<String> vouchers = new ArrayList<>();
-        try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.GET_RESTAURANT_VOUCHERS)) {
+    // get restaurant json associated with client
+    public String getRestaurant(String client, String restaurant) {
+        String restaurantJson = "";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.GET_RESTAURANT)) {
+            pstmt.setString(1, client);
+            pstmt.setString(2, restaurant);
+            //System.out.println(pstmt.toString());
             ResultSet resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                String restaurant_name = resultSet.getString("restaurant_name");
-                vouchers.add(restaurant_name);
-                // Process the retrieved data, e.g., print it
-                //System.out.println("User ID: " + userId + ", Username: " + username + ", Created: " + created);
+                restaurantJson = resultSet.getString("restaurant");
             }
             resultSet.close();
             //System.out.println("Select query executed successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return vouchers;
+
+        return restaurantJson;
     }
 
 
