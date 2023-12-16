@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+# Create ssl folder
+mkdir ~/ssl
+cd ~/ssl
+
 # Generate keys
 openssl genrsa -out root.key
 openssl genrsa -out server.key
@@ -28,7 +32,7 @@ sudo -u postgres psql -c "CREATE DATABASE restaurantsdb;"
 sudo systemctl enable postgresql
 
 # Enable SSL on PostgreSQL
-sudo cp /path/to/server.pem /path/to/server.key /path/to/root.pem /etc/postgresql/16/main
+sudo cp ~/ssl/server.pem ~/ssl/server.key ~/ssl/root.pem /etc/postgresql/16/main
 sudo chown postgres:postgres /etc/postgresql/16/main/root.pem /etc/postgresql/16/main/server.key /etc/postgresql/16/main/server.pem
 sudo chmod 0600 /etc/postgresql/16/main/server.key
 
@@ -46,7 +50,7 @@ sudo systemctl restart postgresql
 sudo cat /var/log/postgresql/postgresql-16-main.log
 
 # Send certificates to the grpc server
-scp /path/to/user.pem /path/to/user.key /path/to/root.pem grpcserveruser@192.168.0.20:"$HOME"/
+scp ~/ssl/user.pem ~/ssl/user.key ~/ssl/root.pem grpcserveruser@192.168.0.20:"$HOME"/
 
 # Access PostgreSQL shell remotely
 psql "host=192.168.0.30 user=postgres dbname=restaurantsdb sslcert=user.pem sslkey=user.key sslrootcert=root.pem sslmode=verify-full"
