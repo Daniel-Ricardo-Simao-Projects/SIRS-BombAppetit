@@ -65,7 +65,7 @@ public class UserMain {
                                     bombAppetit.getRestaurantVouchers(restaurantName);
                                     break;
                                 case '3':
-                                    // bombAppetit.doReviewOfRestaurant(restaurantName);
+                                    bombAppetit.doReviewOfRestaurant(restaurantName);
                                     break;
                                 case '2':
                                     bombAppetit.getRestaurantReviews(restaurantName);

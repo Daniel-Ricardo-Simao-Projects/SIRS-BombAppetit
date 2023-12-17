@@ -2,6 +2,9 @@ package sirs.server.service;
 
 import java.util.ArrayList;
 
+import com.google.gson.JsonParser;
+import com.google.gson.annotations.JsonAdapter;
+
 import io.grpc.stub.StreamObserver;
 import proto.bombappetit.BombAppetitGrpc;
 import proto.bombappetit.BombAppetitOuterClass;
@@ -42,7 +45,7 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         // grab the restaurant name from the request and look for it in the database
         String restaurantName = request.getRestaurantName();
         String user = request.getUser();
-        String restaurantJson = server.getRestaurant(user, restaurantName);
+        String restaurantJson = server.getClientRestaurant(user, restaurantName);
         // System.out.println(restaurantJson);
 
         BombAppetitOuterClass.RestaurantResponse response = BombAppetitOuterClass.RestaurantResponse
@@ -53,4 +56,27 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void sendJson(BombAppetitOuterClass.SendJsonRequest request,
+            StreamObserver<BombAppetitOuterClass.SendJsonResponse> responseObserver) {
+
+        String user = request.getUser();
+        String restaurantName = request.getRestaurantName();
+        String restaurantJson = request.getRestaurantJson();
+        //System.out.println(restaurantJson);
+
+        //server.updateRestaurant(user, restaurantName, restaurantJson);
+        var reviews = JsonParser.parseString(restaurantJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
+
+        server.updateAllRestaurantReviews(restaurantName, reviews.toString());
+
+        BombAppetitOuterClass.SendJsonResponse response = BombAppetitOuterClass.SendJsonResponse
+                .newBuilder()
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
 }

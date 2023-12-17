@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -27,10 +28,11 @@ public class BombAppetit {
     }
 
     public ProtocolStringList getAllRestaurantsJson() {
+
         proto.bombappetit.BombAppetitOuterClass.AllRestaurantsRequest request = proto.bombappetit.BombAppetitOuterClass.AllRestaurantsRequest
-                .newBuilder()
-                .setUser(user)
-                .build();
+            .newBuilder()
+            .setUser(user)
+            .build();
 
         proto.bombappetit.BombAppetitOuterClass.AllRestaurantsResponse response = stub.allRestaurants(request);
         // System.out.println(response);
@@ -41,10 +43,10 @@ public class BombAppetit {
     public String getRestaurantJson(String restaurantName) {
         
         proto.bombappetit.BombAppetitOuterClass.RestaurantRequest request = proto.bombappetit.BombAppetitOuterClass.RestaurantRequest
-        .newBuilder()
-        .setRestaurantName(restaurantName)
-        .setUser(user)
-        .build();
+            .newBuilder()
+            .setRestaurantName(restaurantName)
+            .setUser(user)
+            .build();
         
         proto.bombappetit.BombAppetitOuterClass.RestaurantResponse response = stub.restaurant(request);
         
@@ -53,6 +55,18 @@ public class BombAppetit {
         
         return response.getRestaurant();
     }
+
+    public void sendJson(String restaurantJson, String restaurantName) {
+        proto.bombappetit.BombAppetitOuterClass.SendJsonRequest request = proto.bombappetit.BombAppetitOuterClass.SendJsonRequest
+            .newBuilder()
+            .setUser(user)
+            .setRestaurantName(restaurantName)
+            .setRestaurantJson(restaurantJson)
+            .build();
+
+        stub.sendJson(request);
+    }
+
     
     public void listAllRestaurants() {
 
@@ -125,6 +139,33 @@ public class BombAppetit {
             System.out.println("Description " + description);
             System.out.println();
         }
+    }
+
+    public void doReviewOfRestaurant(String restaurantName) {
+        System.out.println("\nUser: " + user);
+        System.out.print("Rating (0-5): ");
+        int rating = Integer.parseInt(System.console().readLine());
+        System.out.print("Comment: ");
+        String comment = System.console().readLine();
+
+        var clientRestaurant = getRestaurantJson(restaurantName);
+        if (clientRestaurant == "") {
+            return;
+        }
+        // add a review inside json string
+        JsonObject restaurant = JsonParser.parseString(clientRestaurant).getAsJsonObject();
+        JsonObject restaurantInfo = restaurant.getAsJsonObject("restaurantInfo");
+        JsonArray reviews = restaurantInfo.getAsJsonArray("reviews");
+        JsonObject review = new JsonObject();
+        review.addProperty("user", user);
+        review.addProperty("rating", rating);
+        review.addProperty("comment", comment);
+        reviews.add(review);
+        restaurantInfo.add("reviews", reviews);
+        String restaurantJson = restaurant.toString();
+        System.out.println(restaurantJson);
+        // send json string to server
+        sendJson(restaurantJson, restaurantName);
     }
 
 
