@@ -27,9 +27,11 @@
         "currency": "EUR"
       }
     ],
-    "mealVoucher": {
-      "code": "VOUCHER456",
-      "description": "Enjoy a 15% discount on your meal with this voucher. Limited to one use per visit."
-    }
+    "mealVouchers": [
+      {
+        "code": "VOUCHER456",
+        "description": "Enjoy a 15% discount on your meal with this voucher. Limited to one use per visit."
+      }
+    ]
   }
 }
