@@ -30,33 +30,46 @@ public class Unprotect {
     }
 
     private static void unprotect(String inputJson, String userPrivateKeyPath, String outputJson) throws Exception {
-        // Get keys
+        // Get user private key
         PrivateKey userPrivateKey = readPrivateKey(userPrivateKeyPath);
 
-        try(FileReader fileReader = new FileReader(inputJson)) {
+        try (FileReader fileReader = new FileReader(inputJson)) {
             // Get input file content
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(fileReader, JsonObject.class);
-            JsonObject mealVouchers = jsonObject.getAsJsonObject("restaurantInfo").getAsJsonObject("mealVouchers");
-            String encryptedVoucherString = mealVouchers.remove("encryptedVoucher").getAsString();
-            String encryptedSymmetricKeyString = mealVouchers.remove("encryptedSymmetricKey").getAsString();
-            String iv = mealVouchers.remove("iv").getAsString();
-            mealVouchers.remove("nonce");
-            mealVouchers.remove("signature");
+            jsonObject.remove("signature");
+            JsonObject restaurantInfo = jsonObject.getAsJsonObject("restaurantInfo");
+            String encryptedSymmetricKeyString = restaurantInfo.remove("encryptedSymmetricKey").getAsString();
 
-            // Decipher Symmetric Key (Asymmetric Decryption)
-            SecretKey secretKey = decipherSymmetricKey(encryptedSymmetricKeyString, userPrivateKey);
+            // Extract encrypted voucher details
+            JsonArray encryptedVouchersArray = restaurantInfo.getAsJsonArray("mealVouchers");
+            JsonArray decipheredVouchersArray = new JsonArray();
+            
+            for (JsonElement encryptedVoucherElement : encryptedVouchersArray) {
+                JsonObject encryptedVoucherObject = encryptedVoucherElement.getAsJsonObject();
+                String encryptedVoucherString = encryptedVoucherObject.remove("encryptedVoucher").getAsString();
+                String iv = encryptedVoucherObject.remove("iv").getAsString();
 
-            // Decipher Voucher (Symmetric Decryption)
-            String decipheredVoucher = decipherVoucher(encryptedVoucherString, secretKey, iv);
+                // Decipher Symmetric Key (Asymmetric Decryption)
+                SecretKey secretKey = decipherSymmetricKey(encryptedSymmetricKeyString, userPrivateKey);
 
-            // Rebuild Voucher/Menu
-            JsonArray mealVouchersArray = JsonParser.parseString(decipheredVoucher).getAsJsonArray();
-            jsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", mealVouchersArray);
-        
+                // Decipher Voucher (Symmetric Decryption)
+                String decipheredVoucher = decipherVoucher(encryptedVoucherString, secretKey, iv);
+
+                // Parse the deciphered voucher JSON
+                JsonObject voucherObject = JsonParser.parseString(decipheredVoucher).getAsJsonObject();
+                decipheredVouchersArray.add(voucherObject);
+            }
+
+            // Replace "mealVouchers" with the new structure
+            restaurantInfo.add("mealVouchers", decipheredVouchersArray);
+
+            // Remove unused fields
+            restaurantInfo.remove("nonce");
+            restaurantInfo.remove("signature");
 
             // Write to output file
-            try(FileWriter fileWriter = new FileWriter(outputJson)) {
+            try (FileWriter fileWriter = new FileWriter(outputJson)) {
                 Gson gsonOutput = new GsonBuilder().setPrettyPrinting().create();
                 gsonOutput.toJson(jsonObject, fileWriter);
             }
