@@ -47,7 +47,7 @@ public class Protect {
 
         // Cipher Voucher (Symmetric Encryption)
         //String voucherInfo = originalJson; // For simplicity, using the entire JSON as voucher information
-        String voucherInfo = JsonParser.parseString(originalJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonObject("mealVoucher").toString();
+        String voucherInfo = JsonParser.parseString(originalJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").toString();
         CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
 
         // Cipher Symmetric Key (Asymmetric Encryption)
@@ -69,7 +69,7 @@ public class Protect {
         mealVoucherObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
         mealVoucherObject.addProperty("nonce", nonce);
         //mealVoucherObject.addProperty("signature", digitalSignature);
-        originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVoucher", mealVoucherObject);
+        originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", mealVoucherObject);
         
         // digital signature
         String digitalSignature = createDigitalSignature(originalJsonObject.toString(), restaurantPrivateKey);

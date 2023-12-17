@@ -27,9 +27,15 @@
         "currency": "EUR"
       }
     ],
-    "mealVoucher": {
-      "code": "VOUCHER123",
-      "description": "Redeem this code for a 20% discount in the meal. Drinks not included."
-    }
+    "mealVouchers": [
+      {
+        "code": "VOUCHER123",
+        "description": "Redeem this code for a 20% discount in the meal. Drinks not included."
+      },
+      {
+        "code": "VOUCHER456",
+        "description": "Redeem this code for a 10% discount in the meal. Drinks not included."
+      }
+    ]
   }
 }

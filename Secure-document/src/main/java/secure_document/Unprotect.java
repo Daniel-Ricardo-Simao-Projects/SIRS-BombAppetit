@@ -37,12 +37,12 @@ public class Unprotect {
             // Get input file content
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(fileReader, JsonObject.class);
-            JsonObject mealVoucher = jsonObject.getAsJsonObject("restaurantInfo").getAsJsonObject("mealVoucher");
-            String encryptedVoucherString = mealVoucher.remove("encryptedVoucher").getAsString();
-            String encryptedSymmetricKeyString = mealVoucher.remove("encryptedSymmetricKey").getAsString();
-            String iv = mealVoucher.remove("iv").getAsString();
-            mealVoucher.remove("nonce");
-            mealVoucher.remove("signature");
+            JsonObject mealVouchers = jsonObject.getAsJsonObject("restaurantInfo").getAsJsonObject("mealVouchers");
+            String encryptedVoucherString = mealVouchers.remove("encryptedVoucher").getAsString();
+            String encryptedSymmetricKeyString = mealVouchers.remove("encryptedSymmetricKey").getAsString();
+            String iv = mealVouchers.remove("iv").getAsString();
+            mealVouchers.remove("nonce");
+            mealVouchers.remove("signature");
 
             // Decipher Symmetric Key (Asymmetric Decryption)
             SecretKey secretKey = decipherSymmetricKey(encryptedSymmetricKeyString, userPrivateKey);
@@ -51,9 +51,9 @@ public class Unprotect {
             String decipheredVoucher = decipherVoucher(encryptedVoucherString, secretKey, iv);
 
             // Rebuild Voucher/Menu
-            JsonElement voucherElement = JsonParser.parseString(decipheredVoucher);
-            mealVoucher.add("code", voucherElement.getAsJsonObject().get("code"));
-            mealVoucher.add("description", voucherElement.getAsJsonObject().get("description"));
+            JsonArray mealVouchersArray = JsonParser.parseString(decipheredVoucher).getAsJsonArray();
+            jsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", mealVouchersArray);
+        
 
             // Write to output file
             try(FileWriter fileWriter = new FileWriter(outputJson)) {

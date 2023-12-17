@@ -31,7 +31,7 @@ public class Check {
             String json = new String(Files.readAllBytes(Paths.get(args[0])));
             JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
             JsonObject restaurantInfo = jsonObject.getAsJsonObject("restaurantInfo");
-            JsonObject mealVoucher = restaurantInfo.getAsJsonObject("mealVoucher");
+            JsonObject mealVoucher = restaurantInfo.getAsJsonObject("mealVouchers");
             String nonce = mealVoucher.get("nonce").getAsString();
             String signature = jsonObject.get("signature").getAsString();
             jsonObject.remove("signature");
