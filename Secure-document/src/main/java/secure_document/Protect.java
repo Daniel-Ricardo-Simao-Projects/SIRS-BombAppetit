@@ -11,6 +11,8 @@ import javax.crypto.spec.GCMParameterSpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -38,41 +40,51 @@ public class Protect {
     }
 
     public static void protect(String originalJson, String restaurantPrivKeyPath, String userPubKeyPath, String outputJsonFile) throws Exception {
-        // 
+        // Read private key of the restaurant and public key of the user
         PrivateKey restaurantPrivateKey = readPrivateKey(restaurantPrivKeyPath);
         PublicKey userPublicKey = readPublicKey(userPubKeyPath);
 
-        // Symmetric Key Generation
+        // Generate symmetric key
         SecretKey symmetricKey = generateSymmetricKey();
 
-        // Cipher Voucher (Symmetric Encryption)
-        //String voucherInfo = originalJson; // For simplicity, using the entire JSON as voucher information
-        String voucherInfo = JsonParser.parseString(originalJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").toString();
-        CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
+        // Iterate through each meal voucher and cipher individually
+        JsonArray mealVouchersArray = JsonParser.parseString(originalJson)
+                .getAsJsonObject().getAsJsonObject("restaurantInfo")
+                .getAsJsonArray("mealVouchers");
+        JsonArray encryptedVouchersArray = new JsonArray();
+
+        for (JsonElement voucherElement : mealVouchersArray) {
+            JsonObject voucherObject = voucherElement.getAsJsonObject();
+            String voucherInfo = voucherObject.toString();
+
+            // Cipher Voucher (Symmetric Encryption)
+            CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
+
+            // Build encrypted voucher object
+            JsonObject encryptedVoucherObject = new JsonObject();
+            encryptedVoucherObject.addProperty("encryptedVoucher", cipherResult.encryptedVoucher);
+            encryptedVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
+
+            // Add encrypted voucher to the array
+            encryptedVouchersArray.add(encryptedVoucherObject);
+        }
+
+        // Update the originalJsonObject with the encrypted vouchers array
+        JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
+        originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", encryptedVouchersArray);
 
         // Cipher Symmetric Key (Asymmetric Encryption)
         String encryptedSymmetricKey = cipherSymmetricKey(symmetricKey, userPublicKey);
+        originalJsonObject.getAsJsonObject("restaurantInfo").addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
 
         // Nonce Integration
-        String nonce = generateNonce(cipherResult.iv);
+        String nonce = generateNonce(
+                encryptedVouchersArray.get(0).getAsJsonObject().get("iv").getAsString().getBytes());
+        originalJsonObject.getAsJsonObject("restaurantInfo").addProperty("nonce", nonce);
 
         // Digital Signature
-        //String dataToSign = originalJson + "," + cipherResult.encryptedVoucher + "," + Base64.getEncoder().encodeToString(cipherResult.iv) + "," + encryptedSymmetricKey + "," + nonce;
-        //System.out.println(dataToSign);
-        //String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
-
-        // Build the ciphered JSON dynamically
-        JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
-        JsonObject mealVoucherObject = new JsonObject();
-        mealVoucherObject.addProperty("encryptedVoucher", cipherResult.encryptedVoucher);
-        mealVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
-        mealVoucherObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
-        mealVoucherObject.addProperty("nonce", nonce);
-        //mealVoucherObject.addProperty("signature", digitalSignature);
-        originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", mealVoucherObject);
-        
-        // digital signature
-        String digitalSignature = createDigitalSignature(originalJsonObject.toString(), restaurantPrivateKey);
+        String dataToSign = originalJsonObject.toString();
+        String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
         originalJsonObject.addProperty("signature", digitalSignature);
 
         // Write JSON object to file using Gson
@@ -80,8 +92,8 @@ public class Protect {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(originalJsonObject, fileWriter);
         }
-
     }
+
 
     private static SecretKey generateSymmetricKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
