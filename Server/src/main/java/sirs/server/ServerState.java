@@ -112,17 +112,34 @@ public class ServerState {
         }
     }
 
-    public void removeVoucher(String user, String restaurantName, String voucherCode) {
-        try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.REMOVE_VOUCHER)) {
-            pstmt.setString(1, voucherCode);
-            pstmt.setString(2, user);
-            pstmt.setString(3, restaurantName);
-            System.out.println(pstmt.toString());
-            pstmt.executeUpdate();
+    public ArrayList<String> getUsers() {
+        ArrayList<String> users = new ArrayList<>();
+        try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.GET_USERS)) {
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                String username = resultSet.getString("username");
+                users.add(username);
+            }
+            resultSet.close();
+            //System.out.println("Select query executed successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return users;
     }
+
+
+    // public void removeVoucher(String user, String restaurantName, String voucherCode) {
+    //     try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.REMOVE_VOUCHER)) {
+    //         pstmt.setString(1, voucherCode);
+    //         pstmt.setString(2, user);
+    //         pstmt.setString(3, restaurantName);
+    //         System.out.println(pstmt.toString());
+    //         pstmt.executeUpdate();
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     public void updateAllRestaurantReviews(String restaurantName, String reviews) {
         var maplist = getRestaurantJsons(restaurantName);

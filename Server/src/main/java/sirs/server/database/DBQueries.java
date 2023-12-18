@@ -16,13 +16,18 @@ public class DBQueries {
                                                 "WHERE username = ? and " +
                             "restaurant->'restaurantInfo'->>'restaurant' = ?";
 
-    public static String REMOVE_VOUCHER = "UPDATE clients " +
-                                        "SET restaurant = ( " +
-                                        "SELECT jsonb_set(restaurant, '{restaurantInfo,mealVouchers}', ( " +
-                                        "    SELECT jsonb_agg(element) " +
-                                        "    FROM jsonb_array_elements(restaurant->'restaurantInfo'->'mealVouchers') AS vouchers(element) " +
-                                        "    WHERE NOT (element->>'code' = ?) " +
-                                        ")) " +
-                                        ") " +
-                                        "WHERE username = ? AND restaurant->'restaurantInfo'->>'restaurant' = ?";
+    // public static String REMOVE_VOUCHER = "UPDATE clients " +
+    //                                     "SET restaurant = ( " +
+    //                                     "SELECT jsonb_set(restaurant, '{restaurantInfo,mealVouchers}', ( " +
+    //                                     "    SELECT jsonb_agg(element) " +
+    //                                     "    FROM jsonb_array_elements(restaurant->'restaurantInfo'->'mealVouchers') AS vouchers(element) " +
+    //                                     "    WHERE NOT (element->>'code' = ?) " +
+    //                                     ")) " +
+    //                                     ") " +
+    //                                     "WHERE username = ? AND restaurant->'restaurantInfo'->>'restaurant' = ?";
+
+    public static String GET_USERS = "SELECT username FROM clients";
+
+    public static String GET_RESTAURANT_NAMES = "SELECT restaurant->'restaurantInfo'->>'restaurant' AS restaurantName " +
+                                                "FROM clients WHERE username = ?";
 }

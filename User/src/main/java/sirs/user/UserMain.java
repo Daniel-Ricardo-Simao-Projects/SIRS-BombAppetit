@@ -56,7 +56,7 @@ public class UserMain {
                             System.in.read();
                             switch (option) {
                                 case '6':
-                                    // bombAppetit.sendVoucherToOtherUser(restaurantName);
+                                    bombAppetit.sendVoucher(restaurantName);
                                     break;
                                 case '5':
                                     bombAppetit.useVoucher(restaurantName);

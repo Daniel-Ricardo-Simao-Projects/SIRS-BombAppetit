@@ -2,6 +2,8 @@ package sirs.server.service;
 
 import java.util.ArrayList;
 
+import org.checkerframework.checker.units.qual.s;
+
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.JsonAdapter;
 
@@ -112,6 +114,45 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
     @Override
     public void sendVoucher(SendVoucherRequest request, StreamObserver<SendVoucherResponse> responseObserver) {
         
+        var user = request.getUser();
+        var destUser = request.getDestUser();
+        var restaurantName = request.getRestaurantName();
+        var voucherJson = request.getVoucherJson();
+        var voucher = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
+
+        SendVoucherResponse response;
+
+        var validUsers = server.getUsers();
+        if (!validUsers.contains(destUser)) {
+            response = SendVoucherResponse
+                .newBuilder()
+                .setResponse("Invalid user")
+                .build(); 
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            return;
+        }
+
+        var userRestaurantJson = server.getClientRestaurant(user, restaurantName);
+        var restaurant = JsonParser.parseString(userRestaurantJson).getAsJsonObject();
+        var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
+        vouchers.remove(voucher);
+        server.updateRestaurant(user, restaurantName, restaurant.toString());
+
+        var destUserRestaurantJson = server.getClientRestaurant(destUser, restaurantName);
+        restaurant = JsonParser.parseString(destUserRestaurantJson).getAsJsonObject();
+        vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
+        vouchers.add(voucher);
+        server.updateRestaurant(destUser, restaurantName, restaurant.toString());
+    
+        
+        response = SendVoucherResponse
+                .newBuilder()
+                .setResponse("Voucher sent")
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
     

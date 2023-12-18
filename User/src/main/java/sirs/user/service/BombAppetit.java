@@ -83,9 +83,10 @@ public class BombAppetit {
             .setRestaurantName(restaurantName)
             .setVoucherJson(voucherJson)
             .setDestUser(destUser)
+            .setUser(user)
             .build();
 
-        stub.sendVoucher(request);
+        System.out.println(stub.sendVoucher(request));
     }
 
     
@@ -103,7 +104,7 @@ public class BombAppetit {
 
     public void getRestaurantMenu(String restaurantName) {
         var restaurant = getRestaurantJson(restaurantName);
-        if (restaurant == "") {
+        if (restaurant.equals("")) {
             return;
         }
         var menu = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("menu");
@@ -126,7 +127,7 @@ public class BombAppetit {
 
     public void getRestaurantReviews(String restaurantName) {
         var restaurant = getRestaurantJson(restaurantName);
-        if (restaurant == "") {
+        if (restaurant.equals("")) {
             return;
         }
         var reviews = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
@@ -146,7 +147,7 @@ public class BombAppetit {
 
     public void getRestaurantVouchers(String restaurantName) {
         var restaurant = getRestaurantJson(restaurantName);
-        if (restaurant == "") {
+        if (restaurant.equals("")) {
             return;
         }
         var vouchers = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
@@ -170,7 +171,7 @@ public class BombAppetit {
         String comment = System.console().readLine();
 
         var clientRestaurant = getRestaurantJson(restaurantName);
-        if (clientRestaurant == "") {
+        if (clientRestaurant.equals("")) {
             return;
         }
         // add a review inside json string
@@ -190,13 +191,10 @@ public class BombAppetit {
     }
 
 
-    public void useVoucher(String restaurantName) {
-        System.out.print("Voucher code: ");
-        String voucherCode = System.console().readLine();
-
+    public String buildVoucherJson(String restaurantName, String voucherCode) {
         var clientRestaurant = getRestaurantJson(restaurantName);
-        if (clientRestaurant == "") {
-            return;
+        if (clientRestaurant.equals("")) {
+            return "";
         }
         // send voucher code to server
         JsonObject restaurant = JsonParser.parseString(clientRestaurant).getAsJsonObject();
@@ -223,14 +221,45 @@ public class BombAppetit {
         }
         if (!found) {
             System.out.println("Voucher not found");
-            return;
+            return "";
         }
         restaurantInfo.add("mealVouchers", newVouchers);
         String restaurantJson = restaurant.toString();
-        System.out.println(restaurantJson);
+        return restaurantJson;
+    }
+
+    public void useVoucher(String restaurantName) {
+        System.out.print("Voucher code: ");
+        String voucherCode = System.console().readLine();
+
+        var voucherJson = buildVoucherJson(restaurantName, voucherCode);
+        if (voucherJson.equals("")) {
+            return;
+        }
+
         // send json string to server
-        useVoucher(restaurantJson, restaurantName);
+        useVoucher(voucherJson, restaurantName);
     } 
+
+    public void sendVoucher(String restaurantName) {
+        System.out.print("Voucher code: ");
+        String voucherCode = System.console().readLine();
+        System.out.print("Destination user: ");
+        String destUser = System.console().readLine();
+
+        if (destUser.equals(user)) {
+            System.out.println("You can't send a voucher to yourself");
+            return;
+        }
+
+        var voucherJson = buildVoucherJson(restaurantName, voucherCode);
+        if (voucherJson.equals("")) {
+            return;
+        }
+
+        // send json string to server
+        sendVoucherToOtherUser(destUser, voucherJson, restaurantName);
+    }
 
 
     public boolean shutdown() {
