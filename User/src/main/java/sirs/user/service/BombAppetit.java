@@ -19,7 +19,7 @@ public class BombAppetit {
 
     private BombAppetitGrpc.BombAppetitBlockingStub stub;
 
-    private String user;
+    private final String user;
 
     public BombAppetit(ManagedChannel channel, String user) {
         this.channel = channel;
@@ -56,15 +56,36 @@ public class BombAppetit {
         return response.getRestaurant();
     }
 
-    public void sendJson(String restaurantJson, String restaurantName) {
-        proto.bombappetit.BombAppetitOuterClass.SendJsonRequest request = proto.bombappetit.BombAppetitOuterClass.SendJsonRequest
+    public void sendReview(String restaurantJson, String restaurantName) {
+        proto.bombappetit.BombAppetitOuterClass.SendReviewRequest request = proto.bombappetit.BombAppetitOuterClass.SendReviewRequest
             .newBuilder()
-            .setUser(user)
             .setRestaurantName(restaurantName)
             .setRestaurantJson(restaurantJson)
             .build();
 
-        stub.sendJson(request);
+        stub.sendReview(request);
+    }
+
+    public void useVoucher(String voucherJson, String restaurantName) {
+        proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest request = proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest
+            .newBuilder()
+            .setRestaurantName(restaurantName)
+            .setVoucherJson(voucherJson)
+            .setUser(user)
+            .build();
+
+        stub.useVoucher(request);
+    }
+
+    public void sendVoucherToOtherUser(String destUser, String voucherJson, String restaurantName) {
+        proto.bombappetit.BombAppetitOuterClass.SendVoucherRequest request = proto.bombappetit.BombAppetitOuterClass.SendVoucherRequest
+            .newBuilder()
+            .setRestaurantName(restaurantName)
+            .setVoucherJson(voucherJson)
+            .setDestUser(destUser)
+            .build();
+
+        stub.sendVoucher(request);
     }
 
     
@@ -165,8 +186,51 @@ public class BombAppetit {
         String restaurantJson = restaurant.toString();
         System.out.println(restaurantJson);
         // send json string to server
-        sendJson(restaurantJson, restaurantName);
+        sendReview(restaurantJson, restaurantName);
     }
+
+
+    public void useVoucher(String restaurantName) {
+        System.out.print("Voucher code: ");
+        String voucherCode = System.console().readLine();
+
+        var clientRestaurant = getRestaurantJson(restaurantName);
+        if (clientRestaurant == "") {
+            return;
+        }
+        // send voucher code to server
+        JsonObject restaurant = JsonParser.parseString(clientRestaurant).getAsJsonObject();
+        JsonObject restaurantInfo = restaurant.getAsJsonObject("restaurantInfo");
+        // remove everything from restaurant info except vouchers
+        restaurantInfo.remove("owner");
+        restaurantInfo.remove("menu");
+        restaurantInfo.remove("address");
+        restaurantInfo.remove("genre");
+        restaurantInfo.remove("reviews");
+        restaurantInfo.remove("restaurant");
+
+        JsonArray vouchers = restaurantInfo.getAsJsonArray("mealVouchers");
+        var newVouchers = new JsonArray();
+        Boolean found = false;
+        for (JsonElement item : vouchers) {
+            JsonObject voucher = item.getAsJsonObject();
+            String code = voucher.get("code").getAsString();
+            if (code.equals(voucherCode)) {
+                newVouchers.add(item);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            System.out.println("Voucher not found");
+            return;
+        }
+        restaurantInfo.add("mealVouchers", newVouchers);
+        String restaurantJson = restaurant.toString();
+        System.out.println(restaurantJson);
+        // send json string to server
+        useVoucher(restaurantJson, restaurantName);
+    } 
 
 
     public boolean shutdown() {

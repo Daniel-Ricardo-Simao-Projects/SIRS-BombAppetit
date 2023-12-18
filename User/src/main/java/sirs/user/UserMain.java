@@ -59,7 +59,7 @@ public class UserMain {
                                     // bombAppetit.sendVoucherToOtherUser(restaurantName);
                                     break;
                                 case '5':
-                                    // bombAppetit.useVoucher(restaurantName);
+                                    bombAppetit.useVoucher(restaurantName);
                                     break;
                                 case '4':
                                     bombAppetit.getRestaurantVouchers(restaurantName);

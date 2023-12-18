@@ -112,6 +112,18 @@ public class ServerState {
         }
     }
 
+    public void removeVoucher(String user, String restaurantName, String voucherCode) {
+        try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.REMOVE_VOUCHER)) {
+            pstmt.setString(1, voucherCode);
+            pstmt.setString(2, user);
+            pstmt.setString(3, restaurantName);
+            System.out.println(pstmt.toString());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateAllRestaurantReviews(String restaurantName, String reviews) {
         var maplist = getRestaurantJsons(restaurantName);
         //System.out.println("reviews: " + reviews);

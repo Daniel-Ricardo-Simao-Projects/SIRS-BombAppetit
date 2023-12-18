@@ -53,4 +53,4 @@ sudo cat /var/log/postgresql/postgresql-16-main.log
 scp ~/ssl/user.pem ~/ssl/user.key ~/ssl/root.pem grpcserveruser@192.168.0.20:"$HOME"/
 
 # Access PostgreSQL shell remotely
-psql "host=192.168.0.30 user=postgres dbname=restaurantsdb sslcert=user.pem sslkey=user.key sslrootcert=root.pem sslmode=verify-full"
+# psql "host=192.168.0.30 user=postgres dbname=restaurantsdb sslcert=user.pem sslkey=user.key sslrootcert=root.pem sslmode=verify-full"
