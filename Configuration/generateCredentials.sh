@@ -22,7 +22,7 @@ keytool -import -trustcacerts -file ca.crt -alias ca -keystore server.truststore
 
 mv server.truststore ../Server/src/main/resources/
 mv server.keystore ../Server/src/main/resources/
-mv server-domains.ext ../Server/src/main/resources/
+cp server-domains.ext ../Server/src/main/resources/
 
 rm server.csr server.p12 server.key
 
