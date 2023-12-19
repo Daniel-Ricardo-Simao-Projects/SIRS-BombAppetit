@@ -111,9 +111,13 @@ sudo cat /var/log/postgresql/postgresql-16-main.log
 ```
 
 ## Connect to the databse remotely:
+change user.key to user.key.pk8
+```sh
+openssl pkcs8 -topk8 -outform DER -in user.key -out user.key.pk8 -nocrypt
+```
 Send user key and certificate, and root certificate to the grpc server
 ```sh
-scp /path/to/user.pem /path/to/user.key /path/to/root.pem <server vm user>@<server vm ip>:$HOME/
+scp /path/to/user.pem /path/to/user.key.pk8 /path/to/user.key /path/to/root.pem <server vm user>@<server vm ip>:$HOME/
 ```
 Access postgres shell from the terminal 
 ```sh
