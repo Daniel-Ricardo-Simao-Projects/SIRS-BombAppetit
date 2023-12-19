@@ -42,6 +42,7 @@ public class ServerMain {
             System.out.println("Server started at " + server.getPort());
             System.out.println("Press [Ctrl + c] to stop the server...");
 
+            
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 System.out.println("\nShutdown hook initiated. Shutting down server...");
                 server.shutdown();

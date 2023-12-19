@@ -596,3 +596,4 @@ Secure-document/outputs/
 .idea/
 
 Contract/src/main/resources/
+.vscode/settings.json

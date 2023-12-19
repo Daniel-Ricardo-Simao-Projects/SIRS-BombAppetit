@@ -2,18 +2,11 @@ syntax = "proto3";
 option java_package = "proto.bombappetit";
 
 service BombAppetit {
-    rpc Bomb (BombRequest) returns (BombResponse) {}
     rpc AllRestaurants (AllRestaurantsRequest) returns (AllRestaurantsResponse) {}
     rpc Restaurant (RestaurantRequest) returns (RestaurantResponse) {}
-}
-
-message BombRequest {
-    string message = 1;
-    int32 number = 2;
-}
-
-message BombResponse {
-    string message = 1;
+    rpc SendReview (SendReviewRequest) returns (SendReviewResponse) {}
+    rpc UseVoucher (UseVoucherRequest) returns (UseVoucherResponse) {}
+    rpc SendVoucher (SendVoucherRequest) returns (SendVoucherResponse) {}
 }
 
 message AllRestaurantsRequest {
@@ -31,4 +24,34 @@ message RestaurantRequest {
 
 message RestaurantResponse {
     string restaurant = 1;
+}
+
+message SendReviewRequest {
+    string restaurantName = 1;
+    string restaurantJson = 2;
+}
+
+message SendReviewResponse {
+    string response = 1;
+}
+
+message UseVoucherRequest {
+    string user = 1;
+    string restaurantName = 2;
+    string voucherJson = 3;
+}
+
+message UseVoucherResponse {
+    string response = 1;
+}
+
+message SendVoucherRequest {
+    string user = 1;
+    string destUser = 2;
+    string restaurantName = 3;
+    string voucherJson = 4;
+}
+
+message SendVoucherResponse {
+    string response = 1;
 }

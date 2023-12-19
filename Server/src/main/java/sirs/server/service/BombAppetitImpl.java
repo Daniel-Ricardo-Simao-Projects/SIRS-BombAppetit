@@ -2,24 +2,26 @@ package sirs.server.service;
 
 import java.util.ArrayList;
 
+import org.checkerframework.checker.units.qual.s;
+
+import com.google.gson.JsonParser;
+import com.google.gson.annotations.JsonAdapter;
+
 import io.grpc.stub.StreamObserver;
 import proto.bombappetit.BombAppetitGrpc;
 import proto.bombappetit.BombAppetitOuterClass;
+import proto.bombappetit.BombAppetitOuterClass.SendVoucherRequest;
+import proto.bombappetit.BombAppetitOuterClass.SendVoucherResponse;
+import proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest;
+import proto.bombappetit.BombAppetitOuterClass.UseVoucherResponse;
 import sirs.server.ServerState;
 
 public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
-    private static ServerState server;
+    public static ServerState server;
 
-    @Override
-    public void bomb(BombAppetitOuterClass.BombRequest request,
-            StreamObserver<BombAppetitOuterClass.BombResponse> responseObserver) {
-        System.out.println(request);
-        BombAppetitOuterClass.BombResponse response = BombAppetitOuterClass.BombResponse.newBuilder()
-                .setMessage("Hello " + request.getMessage())
-                .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+    public BombAppetitImpl() {
+        server = new ServerState();
     }
     
     @Override
@@ -28,14 +30,13 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
         // grab all restaurants from the database from the user who is requesting
         String user = request.getUser();
-        System.out.println(user);
+        //System.out.println(user);
 
-        server.getAllRestaurants();
+        ArrayList<String> restaurants = server.getAllRestaurants(user);
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()
-                .addRestaurants("Dona Maria")
-                .addRestaurants("El Sabor Español")
+                .addAllRestaurants(restaurants)
                 .build();
 
         responseObserver.onNext(response);
@@ -45,19 +46,115 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
     @Override
     public void restaurant(BombAppetitOuterClass.RestaurantRequest request,
             StreamObserver<BombAppetitOuterClass.RestaurantResponse> responseObserver) {
-        System.out.println(request);
+        //System.out.println(request);
 
         // grab the restaurant name from the request and look for it in the database
         String restaurantName = request.getRestaurantName();
         String user = request.getUser();
-        System.out.println(restaurantName);
-        System.out.println(user);
+        String restaurantJson = server.getClientRestaurant(user, restaurantName);
+        // System.out.println(restaurantJson);
 
         BombAppetitOuterClass.RestaurantResponse response = BombAppetitOuterClass.RestaurantResponse
+                .newBuilder()
+                .setRestaurant(restaurantJson)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void sendReview(BombAppetitOuterClass.SendReviewRequest request,
+            StreamObserver<BombAppetitOuterClass.SendReviewResponse> responseObserver) {
+
+        String restaurantName = request.getRestaurantName();
+        String restaurantJson = request.getRestaurantJson();
+        //System.out.println(restaurantJson);
+
+        //server.updateRestaurant(user, restaurantName, restaurantJson);
+        var reviews = JsonParser.parseString(restaurantJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
+
+        server.updateAllRestaurantReviews(restaurantName, reviews.toString());
+
+        BombAppetitOuterClass.SendReviewResponse response = BombAppetitOuterClass.SendReviewResponse
                 .newBuilder()
                 .build();
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void useVoucher(UseVoucherRequest request, StreamObserver<UseVoucherResponse> responseObserver) {
+        
+        var restaurantName = request.getRestaurantName();
+        var voucherJson = request.getVoucherJson();
+        var voucher = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
+        var user = request.getUser();
+
+        var restaurantJson = server.getClientRestaurant(user, restaurantName);
+
+        // add voucher to restaurant
+        var restaurant = JsonParser.parseString(restaurantJson).getAsJsonObject();
+        var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
+        vouchers.remove(voucher);
+
+        server.updateRestaurant(user, restaurantName, restaurant.toString());
+
+        //System.out.println(voucher.getAsJsonObject().get("code").getAsString());
+        //server.removeVoucher(user, restaurantName, voucher.getAsJsonObject().get("code").getAsString());
+
+        UseVoucherResponse response = UseVoucherResponse
+                .newBuilder()
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void sendVoucher(SendVoucherRequest request, StreamObserver<SendVoucherResponse> responseObserver) {
+        
+        var user = request.getUser();
+        var destUser = request.getDestUser();
+        var restaurantName = request.getRestaurantName();
+        var voucherJson = request.getVoucherJson();
+        var voucher = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
+
+        SendVoucherResponse response;
+
+        var validUsers = server.getUsers();
+        if (!validUsers.contains(destUser)) {
+            response = SendVoucherResponse
+                .newBuilder()
+                .setResponse("Invalid user")
+                .build(); 
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            return;
+        }
+
+        var userRestaurantJson = server.getClientRestaurant(user, restaurantName);
+        var restaurant = JsonParser.parseString(userRestaurantJson).getAsJsonObject();
+        var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
+        vouchers.remove(voucher);
+        server.updateRestaurant(user, restaurantName, restaurant.toString());
+
+        var destUserRestaurantJson = server.getClientRestaurant(destUser, restaurantName);
+        restaurant = JsonParser.parseString(destUserRestaurantJson).getAsJsonObject();
+        vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
+        vouchers.add(voucher);
+        server.updateRestaurant(destUser, restaurantName, restaurant.toString());
+    
+        
+        response = SendVoucherResponse
+                .newBuilder()
+                .setResponse("Voucher sent")
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    
+
 }
