@@ -4,7 +4,7 @@
 
 | Number | Name               | User                               | E-mail                                 |
 | ------ | ------------------ | ---------------------------------- | -------------------------------------- |
-| 99194  | Daniel Pereira     | <https://github.com/DaniPalma2002> | <mailto:alice@tecnico.ulisboa.pt>      |
+| 99194  | Daniel Pereira     | <https://github.com/DaniPalma2002> | <mailto:danielppereira2002@tecnico.ulisboa.pt>      |
 | 99315  | Ricardo Toscanelli | <https://github.com/rtoscanelli>   | <mailto:bob@tecnico.ulisboa.pt>        |
 | 99328  | Simão Gato         | <https://github.com/SimaoGato>     | <mailto:simao.gato@tecnico.ulisboa.pt> |
 
