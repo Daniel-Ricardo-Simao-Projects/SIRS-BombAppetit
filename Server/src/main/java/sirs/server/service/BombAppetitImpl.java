@@ -2,10 +2,7 @@ package sirs.server.service;
 
 import java.util.ArrayList;
 
-import org.checkerframework.checker.units.qual.s;
-
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.JsonAdapter;
 
 import io.grpc.stub.StreamObserver;
 import proto.bombappetit.BombAppetitGrpc;
@@ -15,6 +12,7 @@ import proto.bombappetit.BombAppetitOuterClass.SendVoucherResponse;
 import proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest;
 import proto.bombappetit.BombAppetitOuterClass.UseVoucherResponse;
 import sirs.server.ServerState;
+
 
 public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
@@ -33,6 +31,9 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         //System.out.println(user);
 
         ArrayList<String> restaurants = server.getAllRestaurants(user);
+        // for (var restaurant : restaurants) {
+            
+        // }
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()

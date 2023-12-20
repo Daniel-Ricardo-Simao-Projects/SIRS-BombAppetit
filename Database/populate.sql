@@ -68,7 +68,7 @@ INSERT INTO clients (username, restaurant) VALUES
         '{
         "restaurantInfo": {
             "owner": "Carlos Rodriguez",
-            "restaurant": "El Sabor Español",
+            "restaurant": "El Sabor Espanhol",
             "address": "Calle de la Paz, 15, Madrid",
             "genre": ["Spanish", "Tapas"],
             "menu": [
@@ -172,7 +172,7 @@ INSERT INTO clients (username, restaurant) VALUES
         '{
         "restaurantInfo": {
             "owner": "Carlos Rodriguez",
-            "restaurant": "El Sabor Español",
+            "restaurant": "El Sabor Espanhol",
             "address": "Calle de la Paz, 15, Madrid",
             "genre": ["Spanish", "Tapas"],
             "menu": [

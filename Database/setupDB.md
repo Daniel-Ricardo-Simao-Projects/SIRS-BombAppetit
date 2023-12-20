@@ -99,7 +99,7 @@ ssl_ca_file = '/path/to/root.pem'         # Path to your root certificate
 
 Modify the `pg_hba.conf` file to allow SSL connections to server ip
 ```sh
-hostssl	restaurantsdb	postgres	192.168.0.20/24		scram-sha-256	clientcert=verify-full
+hostssl	restaurantsdb	postgres	192.168.1.20/24		scram-sha-256	clientcert=verify-full
 ```
 Restart postgres 
 ```sh
@@ -119,7 +119,13 @@ Send user key and certificate, and root certificate to the grpc server
 ```sh
 scp /path/to/user.pem /path/to/user.key.pk8 /path/to/user.key /path/to/root.pem <server vm user>@<server vm ip>:$HOME/
 ```
-Access postgres shell from the terminal 
+Access postgres shell remotely from the terminal 
 ```sh
 psql "host=<db vm ip> user=postgres dbname=restaurantsdb sslcert=user.pem sslkey=user.key sslrootcert=root.pem sslmode=verify-full"
 ```
+
+## Populate Database manually
+```sh
+sudo -u postgres psql -d restaurantsdb
+```
+paste populate.sql into postgres terminal

@@ -43,10 +43,14 @@ public class UserMain {
                 System.in.read();
                 switch (option) {
                     case '1':
-                        bombAppetit.listAllRestaurants();
+                        var restaurants = bombAppetit.listAllRestaurants();
                         System.out.print("\nChoose a restaurant. If you want to go back, type 0: ");
                         String restaurantName = System.console().readLine();
                         if (restaurantName.equals("0")) {
+                            break;
+                        }
+                        if (!restaurants.contains(restaurantName)) {
+                            System.out.println("Restaurant " + restaurantName + " does not exist.");
                             break;
                         }
                         while (option != '0') {

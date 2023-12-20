@@ -5,8 +5,6 @@ import proto.bombappetit.BombAppetitGrpc;
 
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -90,15 +88,18 @@ public class BombAppetit {
     }
 
     
-    public void listAllRestaurants() {
+    public ArrayList<String> listAllRestaurants() {
 
         var restaurants = getAllRestaurantsJson();
+        var restaurantNames = new ArrayList<String>();
 
         System.out.println("\nRestaurants Available:");
         for (String restaurant : restaurants) {
-            var restaurantName = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").get("restaurant").toString();
+            var restaurantName = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").get("restaurant").getAsString();
             System.out.println("- " + restaurantName);
+            restaurantNames.add(restaurantName);
         }
+        return restaurantNames;
 
     }
 

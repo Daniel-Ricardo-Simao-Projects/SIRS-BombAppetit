@@ -6,18 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.protobuf.ProtocolStringList;
 
 import sirs.server.database.*;
 
@@ -26,7 +21,7 @@ public class ServerState {
     private Connection conn;
 
     public ServerState() {
-        String url = "jdbc:postgresql://192.168.0.30:5432/restaurantsdb?sslmode=verify-full";
+        String url = "jdbc:postgresql://192.168.2.30:5432/restaurantsdb?sslmode=verify-full";
         Properties props = new Properties();
         props.setProperty("user", "postgres");
         props.setProperty("password", "postgres");
