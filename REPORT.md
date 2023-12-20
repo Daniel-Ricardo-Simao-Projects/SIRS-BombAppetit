@@ -2,7 +2,23 @@
 
 ## 1. Introduction
 
-(_Provide a brief overview of your project, including the business scenario and the main components: secure documents, infrastructure, and security challenge._)
+This project aims to develop a restaurant and tourism application that allows users to search for restaurants and get information about them. The application also allows users to give discount vouchers to other users and make reviews about restaurants. The application is composed by:
+- Client
+- Server
+- Database
+
+The client is a command line interface (CLI) that allows users to interact with the application.
+The server is a gRPC server that receives requests from the client and interacts with the database.
+The database is a PostgreSQL database that stores the information of the application.
+
+The application is composed by two main components:
+- Secure Document Format
+- Infrastructure
+
+The secure document format is a JSON format that stores the information of the restaurants and vouchers. This format is protected using a custom cryptographic library that was developed for this project.
+The infrastructure is composed by a secure network and machines that allow the application to run.
+
+In this project we were faced with a security challenge that required us to extend the secure document format and the infrastructure. The challenge required us to implement a secure mechanism to allow users to make reviews about restaurants and give vouchers to other users.
 
 (_Include a structural diagram, in UML or other standard notation._)
 
@@ -187,21 +203,40 @@ Example Data Format:
 
 (_Detail the implementation process, including the programming language and cryptographic libraries used._)
 
+This project was developed using **Java** to program it with **Maven** as a build automation tool.
+The communications between machines are established by using remote procedure calls with **gRPC**.
+The database was implemented with **PostgreSQL**.
+
 (_Include challenges faced and how they were overcome._)
 
 ### 2.2. Infrastructure
 
 #### 2.2.1. Network and Machine Setup
 
-(_Provide a brief description of the built infrastructure._)
+The infrastructure architecture is composed by an internal secure network that secures the system's database, protected with a firewall that is used to implement a DeMilitarized Zone (DMZ). The latter is composed by the application public server which can be connected by users of the project service.
+These users, located in external networks, connect to the infrastructure via the internet.
+
+The system is implemented as following:
+- VM1: External **user machine** that connect to the application server on port 5000
+- VM2: **Gateway** machine which separates the external network from the DMZ and internal network. A single firewall is used to accomplish this separation.
+- VM3: **Application server** machine that receives connections from external users. It is connected to the database server on port 5433.
+- VM4: **Database** server machine that stores the information of the system. It can only be accessed via the application server.
 
 (_Justify the choice of technologies for each server._)
 
 #### 2.2.2. Server Communication Security
 
-(_Discuss how server communications were secured, including the secure channel solutions implemented and any challenges encountered._)
+In order to establish a communication between users and the application server, a secure channel was implemented using **TLS**, on top of **gRPC**. This channel is used to protect the confidentiality and integrity of the data exchanged between the two parties.
+This secure channel was also used in the communication between the application server and the database.
+These channels were tested with the **WireShark** tool, which allowed us to verify that the data exchanged between the parties was encrypted.
 
 (_Explain what keys exist at the start and how are they distributed?_)
+
+In this project scenario is assumed that all parties know a priori the public keys of each other.
+
+A **Certificate Authority (CA)** was used to generate the certificates used in the secure channels. The CA was implemented using the **OpenSSL** tool, which allowed us to generate the certificates and the private keys for each server.
+All certificates were signed by the CA, which allowed us to establish a secure communication between the parties.
+The users (clients) to connect to the server must first know the server's certificate. This certificate is sent to the client when the server is started, and the client must trust it in order to establish a secure connection.
 
 ### 2.3. Security Challenge
 
