@@ -22,8 +22,11 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
     private final String KEYPATH = "../Secure-document/inputs/keys/";
 
+    private ArrayList<String> nonces;
+
     public BombAppetitImpl() {
         server = new ServerState();
+        nonces = new ArrayList<String>();
     }
     
     @Override
@@ -89,9 +92,17 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         String restaurantName = request.getRestaurantName();
         String restaurantJson = request.getRestaurantJson();
         String user = request.getUser();
-        System.out.println(user);
+        //System.out.println(user);
         JsonObject json = new JsonObject();
         try {
+            var nonce = JsonParser.parseString(restaurantJson).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
+            String[] splitStrings = nonce.split(" ");
+            String random = splitStrings[1];
+            if (!Check.checkString(restaurantJson, KEYPATH+user+"Pub.key", nonces)) {
+                nonces.add(random);
+                return;
+            }
+            nonces.add(random);
             json = Unprotect.unprotectString(restaurantJson, KEYPATH+"restaurantPriv.key");
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,14 +135,22 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
         JsonObject voucherUnprotect = new JsonObject();
         try {
+            var nonce = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
+            String[] splitStrings = nonce.split(" ");
+            String random = splitStrings[1];
+            if (!Check.checkString(voucherJson, KEYPATH+user+"Pub.key", nonces)) {
+                nonces.add(random);
+                return;
+            }
+            nonces.add(random);
             voucherUnprotect = Unprotect.unprotectString(voucherJson, KEYPATH+"restaurantPriv.key");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("------------");
-        System.out.println(voucherJson);
-        System.out.println(voucherUnprotect);
-        System.out.println("------------");
+        // System.out.println("------------");
+        // System.out.println(voucherJson);
+        // System.out.println(voucherUnprotect);
+        // System.out.println("------------");
 
         var voucher = JsonParser.parseString(voucherUnprotect.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
 
@@ -141,7 +160,7 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
         vouchers.remove(voucher);
 
-        System.out.println(restaurant);
+        //System.out.println(restaurant);
         server.updateRestaurant(user, restaurantName, restaurant.toString());
 
         //System.out.println(voucher.getAsJsonObject().get("code").getAsString());
@@ -166,6 +185,14 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         
         JsonObject voucherUnprotect = new JsonObject();
         try {
+            var nonce = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
+            String[] splitStrings = nonce.split(" ");
+            String random = splitStrings[1];
+            if (!Check.checkString(voucherJson, KEYPATH+user+"Pub.key", nonces)) {
+                nonces.add(random);
+                return;
+            }
+            nonces.add(random);
             voucherUnprotect = Unprotect.unprotectString(voucherJson, KEYPATH+"restaurantPriv.key");
         } catch (Exception e) {
             e.printStackTrace();

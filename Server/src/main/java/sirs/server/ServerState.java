@@ -114,7 +114,7 @@ public class ServerState {
     }
 
     public void updateRestaurant(String user, String restaurantName, String RestaurantJson) {
-        System.out.println("ola" + RestaurantJson);        
+        //System.out.println("ola" + RestaurantJson);        
         try (PreparedStatement pstmt = conn.prepareStatement(DBQueries.UPDATE_RESTAURANT)) {
             pstmt.setString(1, RestaurantJson);
             pstmt.setString(2, user);
@@ -149,7 +149,7 @@ public class ServerState {
 
         for (var mapEntry : maplist.entrySet()) {
             var restaurantJson = mapEntry.getValue();
-            System.out.println("maplist: " + restaurantJson);
+            //System.out.println("maplist: " + restaurantJson);
             JsonObject restaurant = JsonParser.parseString(restaurantJson).getAsJsonObject();
             restaurant.getAsJsonObject("restaurantInfo").add("reviews", reviewsArray);
             //System.out.println(restaurant);

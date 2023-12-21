@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import com.google.protobuf.ProtocolStringList;
 
 import io.grpc.ManagedChannel;
+import main.java.secure_document.Check;
 import main.java.secure_document.Protect;
 import main.java.secure_document.Unprotect;
 import proto.bombappetit.BombAppetitGrpc;
@@ -23,10 +24,13 @@ public class BombAppetit {
 
     private final String KEYPATH = "../Secure-document/inputs/keys/";
 
+    private ArrayList<String> nonces; 
+
     public BombAppetit(ManagedChannel channel, String user) {
         this.channel = channel;
         this.user = user;
         stub = BombAppetitGrpc.newBlockingStub(channel);
+        nonces = new ArrayList<String>();
     }
 
     public ArrayList<String> getAllRestaurantsJson() throws Exception {
@@ -43,9 +47,17 @@ public class BombAppetit {
         var restList = new ArrayList<String>();
         for (var restaurant : restListSecure) {
             //System.out.println(restaurant);
+            var nonce = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
+            String[] splitStrings = nonce.split(" ");
+            String random = splitStrings[1];
+            if (!Check.checkString(restaurant, KEYPATH+"restaurantPub.key", nonces)) {
+                nonces.add(random);
+                return new ArrayList<String>();
+            }
+            nonces.add(random);
             var json = Unprotect.unprotectString(restaurant, KEYPATH+user+"Priv.key");
             restList.add(json.toString());
-            System.out.println("json: " + json);
+            //System.out.println("json: " + json);
         }
         return restList;
         
@@ -67,6 +79,14 @@ public class BombAppetit {
         var restSecure = response.getRestaurant();
         JsonObject json = new JsonObject();
         try {
+            var nonce = JsonParser.parseString(restSecure).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
+            String[] splitStrings = nonce.split(" ");
+            String random = splitStrings[1];
+            if (!Check.checkString(restSecure, KEYPATH+"restaurantPub.key", nonces)) {
+                nonces.add(random);
+                return json.toString();
+            }
+            nonces.add(random);
             json = Unprotect.unprotectString(restSecure, KEYPATH+user+"Priv.key");
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,14 +113,14 @@ public class BombAppetit {
     }
 
     public void useVoucher(String voucherJson, String restaurantName) {
-        System.out.println(voucherJson);
+        //System.out.println(voucherJson);
         JsonObject json = new JsonObject();
         try {
             json = Protect.protect(voucherJson, KEYPATH+user+"Priv.key", KEYPATH+"restaurantPub.key");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(json.toString());
+        //System.out.println(json.toString());
         proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest request = proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest
             .newBuilder()
             .setRestaurantName(restaurantName)
@@ -118,7 +138,7 @@ public class BombAppetit {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(json.toString());
+        //System.out.println(json.toString());
 
         proto.bombappetit.BombAppetitOuterClass.SendVoucherRequest request = proto.bombappetit.BombAppetitOuterClass.SendVoucherRequest
             .newBuilder()
@@ -146,7 +166,7 @@ public class BombAppetit {
         System.out.println("\nRestaurants Available:");
         for (String restaurant : restaurants) {
             var restaurantName = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").get("restaurant").getAsString();
-            System.out.println("- " + restaurantName);
+            System.out.println("-> " + restaurantName);
             restaurantNames.add(restaurantName);
         }
         return restaurantNames;
@@ -241,7 +261,7 @@ public class BombAppetit {
         reviews.add(review);
         restaurantInfo.add("reviews", reviews);
         String restaurantJson = restaurant.toString();
-        System.out.println(restaurantJson);
+        //System.out.println(restaurantJson);
         // send json string to server
         sendReview(restaurantJson, restaurantName);
     }

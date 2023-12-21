@@ -12,6 +12,7 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 
 public class Check {
@@ -33,42 +34,81 @@ public class Check {
             json = jsonObject.toString();
 
             // Display the retrieved fields
-            System.out.println("Nonce: " + nonce);
-            System.out.println("Signature: " + signature);
+            //System.out.println("Nonce: " + nonce);
+            //System.out.println("Signature: " + signature);
 
             // Read public key
             PublicKey publicKey = readPublicKey(args[1]);
 
             // Verify signature and check nonce
             checkSignature(json, publicKey, signature);
-            checkNonce(nonce);
+            checkNonce(nonce, new ArrayList<>());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void checkSignature(String json, PublicKey publicKey, String signature) throws Exception {
+    public static Boolean checkString(String json, String pubKeyPath, ArrayList<String> nonces) {
+        try {
+            JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+            JsonObject restaurantInfo = jsonObject.getAsJsonObject("restaurantInfo");
+
+            // Extract nonce, signature, and remove signature from the JSON
+            String nonce = restaurantInfo.get("nonce").getAsString();
+            String signature = jsonObject.get("signature").getAsString();
+            jsonObject.remove("signature");
+
+            json = jsonObject.toString();
+
+            // Display the retrieved fields
+            //System.out.println("Nonce: " + nonce);
+            //System.out.println("Signature: " + signature);
+
+            // Read public key
+            PublicKey publicKey = readPublicKey(pubKeyPath);
+
+            // Verify signature and check nonce
+            return checkSignature(json, publicKey, signature) && checkNonce(nonce, nonces);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Boolean checkSignature(String json, PublicKey publicKey, String signature) throws Exception {
         // Verify the digital signature
         boolean result = verifyDigitalSignature(json, publicKey, signature);
         if (result) {
             System.out.println("Signature is valid");
+            return true;
         } else {
             System.out.println("Signature is invalid");
+            return false;
         }
     }
 
-    public static void checkNonce(String nonce) {
+    public static Boolean checkNonce(String nonce, ArrayList<String> nonces) {
         // Split nonce into timestamp and random values
         String[] splitStrings = nonce.split(" ");
         long timestamp = Long.parseLong(splitStrings[0]);
+        String random = splitStrings[1];
 
         // Check if the timestamp is within the last 10 seconds
         long tenSecAgo = Instant.now().minusMillis(10000).toEpochMilli();
         long currTime = Instant.now().toEpochMilli();
         if (timestamp >= tenSecAgo && timestamp <= currTime) {
-            System.out.println("Nonce timestamp is valid");
+            //System.out.println("Nonce timestamp is valid");
+            if (!nonces.contains(random)) {
+                System.out.println("Nonce is valid");
+                return true; 
+            } else {
+                System.out.println("Nonce is invalid");
+                return false;
+            }
+
         } else {
-            System.out.println("Nonce timestamp is invalid");
+            System.out.println("Nonce is invalid");
+            return false;
         }
     }
 
