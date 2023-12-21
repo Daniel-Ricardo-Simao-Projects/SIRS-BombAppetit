@@ -27,8 +27,9 @@ message RestaurantResponse {
 }
 
 message SendReviewRequest {
-    string restaurantName = 1;
-    string restaurantJson = 2;
+    string user = 1;
+    string restaurantName = 2;
+    string restaurantJson = 3;
 }
 
 message SendReviewResponse {

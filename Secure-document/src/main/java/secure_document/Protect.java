@@ -32,66 +32,83 @@ public class Protect {
 
         try {
             String originalJson = new String(Files.readAllBytes(Paths.get(args[0])));
-            protect(originalJson, args[1], args[2], args[3]);
+            JsonObject json = protect(originalJson, args[1], args[2]);
+            // Write JSON object to file using Gson
+            try (FileWriter fileWriter = new FileWriter(args[3])) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(json, fileWriter);
+            }
             System.out.println("Ciphered JSON written to " + args[1]);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void protect(String originalJson, String restaurantPrivKeyPath, String userPubKeyPath, String outputJsonFile) throws Exception {
+    public static JsonObject protect(String originalJson, String restaurantPrivKeyPath, String userPubKeyPath) throws Exception {
         // Read private key of the restaurant and public key of the user
+        //System.out.println(System.getProperty("user.dir"));
         PrivateKey restaurantPrivateKey = readPrivateKey(restaurantPrivKeyPath);
         PublicKey userPublicKey = readPublicKey(userPubKeyPath);
 
         // Generate symmetric key
         SecretKey symmetricKey = generateSymmetricKey();
-
+        
         // Iterate through each meal voucher and cipher individually
         JsonArray mealVouchersArray = JsonParser.parseString(originalJson)
                 .getAsJsonObject().getAsJsonObject("restaurantInfo")
                 .getAsJsonArray("mealVouchers");
-        JsonArray encryptedVouchersArray = new JsonArray();
 
-        for (JsonElement voucherElement : mealVouchersArray) {
-            JsonObject voucherObject = voucherElement.getAsJsonObject();
-            String voucherInfo = voucherObject.toString();
+        String nonce = "";
+        JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
+        
+        if (mealVouchersArray.size() == 0) {
+            System.out.println("PROTECT: THERE IS NO VOUCHERS");
+            SecureRandom random = new SecureRandom();
+            byte[] iv = new byte[12]; // GCM recommended IV size is 12 bytes
+            random.nextBytes(iv);
+            nonce = generateNonce(iv);
+        } else {
 
-            // Cipher Voucher (Symmetric Encryption)
-            CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
-
-            // Build encrypted voucher object
-            JsonObject encryptedVoucherObject = new JsonObject();
-            encryptedVoucherObject.addProperty("encryptedVoucher", cipherResult.encryptedVoucher);
-            encryptedVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
-
-            // Add encrypted voucher to the array
-            encryptedVouchersArray.add(encryptedVoucherObject);
+            JsonArray encryptedVouchersArray = new JsonArray();
+    
+            for (JsonElement voucherElement : mealVouchersArray) {
+                JsonObject voucherObject = voucherElement.getAsJsonObject();
+                String voucherInfo = voucherObject.toString();
+    
+                // Cipher Voucher (Symmetric Encryption)
+                CipherResult cipherResult = cipherVoucher(voucherInfo, symmetricKey);
+    
+                // Build encrypted voucher object
+                JsonObject encryptedVoucherObject = new JsonObject();
+                encryptedVoucherObject.addProperty("encryptedVoucher", cipherResult.encryptedVoucher);
+                encryptedVoucherObject.addProperty("iv", Base64.getEncoder().encodeToString(cipherResult.iv));
+    
+                // Add encrypted voucher to the array
+                encryptedVouchersArray.add(encryptedVoucherObject);
+                
+                nonce = generateNonce(encryptedVouchersArray.get(0).getAsJsonObject().get("iv").getAsString().getBytes());
+                originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", encryptedVouchersArray);
+            }
         }
 
-        // Update the originalJsonObject with the encrypted vouchers array
-        JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
-        originalJsonObject.getAsJsonObject("restaurantInfo").add("mealVouchers", encryptedVouchersArray);
+
+
 
         // Cipher Symmetric Key (Asymmetric Encryption)
         String encryptedSymmetricKey = cipherSymmetricKey(symmetricKey, userPublicKey);
         originalJsonObject.getAsJsonObject("restaurantInfo").addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
-
+        
         // Nonce Integration
-        String nonce = generateNonce(
-                encryptedVouchersArray.get(0).getAsJsonObject().get("iv").getAsString().getBytes());
         originalJsonObject.getAsJsonObject("restaurantInfo").addProperty("nonce", nonce);
-
+        
         // Digital Signature
         String dataToSign = originalJsonObject.toString();
         String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
         originalJsonObject.addProperty("signature", digitalSignature);
-
-        // Write JSON object to file using Gson
-        try (FileWriter fileWriter = new FileWriter(outputJsonFile)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(originalJsonObject, fileWriter);
-        }
+        
+        //System.out.println(originalJsonObject);
+        return originalJsonObject;
+        
     }
 
 
@@ -155,14 +172,14 @@ public class Protect {
         return Base64.getEncoder().encodeToString(randomBytes);
     }
 
-    private static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {
+    public static PrivateKey readPrivateKey(String privateKeyPath) throws Exception {
         byte[] privEncoded = Files.readAllBytes(Paths.get(privateKeyPath));
         PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(privEncoded);
         KeyFactory keyFacPriv = KeyFactory.getInstance("RSA");
         return keyFacPriv.generatePrivate(privSpec);
     }
 
-    private static PublicKey readPublicKey(String publicKeyPath) throws Exception {
+    public static PublicKey readPublicKey(String publicKeyPath) throws Exception {
         byte[] pubEncoded = Files.readAllBytes(Paths.get(publicKeyPath));
         X509EncodedKeySpec pubSpec = new X509EncodedKeySpec(pubEncoded);
         KeyFactory keyFacPub = KeyFactory.getInstance("RSA");

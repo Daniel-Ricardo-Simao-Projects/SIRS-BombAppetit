@@ -2,6 +2,7 @@ package sirs.server.service;
 
 import java.util.ArrayList;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.grpc.stub.StreamObserver;
@@ -12,11 +13,14 @@ import proto.bombappetit.BombAppetitOuterClass.SendVoucherResponse;
 import proto.bombappetit.BombAppetitOuterClass.UseVoucherRequest;
 import proto.bombappetit.BombAppetitOuterClass.UseVoucherResponse;
 import sirs.server.ServerState;
+import main.java.secure_document.*;
 
 
 public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
     public static ServerState server;
+
+    private final String KEYPATH = "../Secure-document/inputs/keys/";
 
     public BombAppetitImpl() {
         server = new ServerState();
@@ -30,14 +34,21 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         String user = request.getUser();
         //System.out.println(user);
 
-        ArrayList<String> restaurants = server.getAllRestaurants(user);
-        // for (var restaurant : restaurants) {
-            
-        // }
+        ArrayList<String> restaurantsProtect = new ArrayList<>();
+        var restaurants = server.getAllRestaurants(user);
+        try {
+            for (var restaurant : restaurants) {
+                var json = Protect.protect(restaurant, KEYPATH+"restaurantPriv.key", KEYPATH+user+"Pub.key");
+                restaurantsProtect.add(json.toString());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
             
         BombAppetitOuterClass.AllRestaurantsResponse response = BombAppetitOuterClass.AllRestaurantsResponse
                 .newBuilder()
-                .addAllRestaurants(restaurants)
+                .addAllRestaurants(restaurantsProtect)
                 .build();
 
         responseObserver.onNext(response);
@@ -54,10 +65,17 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         String user = request.getUser();
         String restaurantJson = server.getClientRestaurant(user, restaurantName);
         // System.out.println(restaurantJson);
+        JsonObject json = new JsonObject();
+        try {
+			json = Protect.protect(restaurantJson, KEYPATH+"restaurantPriv.key", KEYPATH+user+"Pub.key");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 
         BombAppetitOuterClass.RestaurantResponse response = BombAppetitOuterClass.RestaurantResponse
                 .newBuilder()
-                .setRestaurant(restaurantJson)
+                .setRestaurant(json.toString())
                 .build();
 
         responseObserver.onNext(response);
@@ -70,10 +88,20 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
         String restaurantName = request.getRestaurantName();
         String restaurantJson = request.getRestaurantJson();
+        String user = request.getUser();
+        System.out.println(user);
+        JsonObject json = new JsonObject();
+        try {
+            json = Unprotect.unprotectString(restaurantJson, KEYPATH+"restaurantPriv.key");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //System.out.println(restaurantJson);
+        //System.out.println(json);
 
         //server.updateRestaurant(user, restaurantName, restaurantJson);
-        var reviews = JsonParser.parseString(restaurantJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
+        var reviews = JsonParser.parseString(json.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
+        //System.out.println(reviews);
 
         server.updateAllRestaurantReviews(restaurantName, reviews.toString());
 
@@ -90,16 +118,30 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         
         var restaurantName = request.getRestaurantName();
         var voucherJson = request.getVoucherJson();
-        var voucher = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
         var user = request.getUser();
 
         var restaurantJson = server.getClientRestaurant(user, restaurantName);
+
+        JsonObject voucherUnprotect = new JsonObject();
+        try {
+            voucherUnprotect = Unprotect.unprotectString(voucherJson, KEYPATH+"restaurantPriv.key");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("------------");
+        System.out.println(voucherJson);
+        System.out.println(voucherUnprotect);
+        System.out.println("------------");
+
+        var voucher = JsonParser.parseString(voucherUnprotect.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
+
 
         // add voucher to restaurant
         var restaurant = JsonParser.parseString(restaurantJson).getAsJsonObject();
         var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
         vouchers.remove(voucher);
 
+        System.out.println(restaurant);
         server.updateRestaurant(user, restaurantName, restaurant.toString());
 
         //System.out.println(voucher.getAsJsonObject().get("code").getAsString());
@@ -119,10 +161,17 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         var destUser = request.getDestUser();
         var restaurantName = request.getRestaurantName();
         var voucherJson = request.getVoucherJson();
-        var voucher = JsonParser.parseString(voucherJson).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
-
+        
         SendVoucherResponse response;
-
+        
+        JsonObject voucherUnprotect = new JsonObject();
+        try {
+            voucherUnprotect = Unprotect.unprotectString(voucherJson, KEYPATH+"restaurantPriv.key");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        var voucher = JsonParser.parseString(voucherUnprotect.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
+        
         var validUsers = server.getUsers();
         if (!validUsers.contains(destUser)) {
             response = SendVoucherResponse
