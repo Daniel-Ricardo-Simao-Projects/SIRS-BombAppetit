@@ -34,8 +34,8 @@ public class Check {
             json = jsonObject.toString();
 
             // Display the retrieved fields
-            //System.out.println("Nonce: " + nonce);
-            //System.out.println("Signature: " + signature);
+            System.out.println("Nonce: " + nonce);
+            System.out.println("Signature: " + signature);
 
             // Read public key
             PublicKey publicKey = readPublicKey(args[1]);
@@ -59,10 +59,6 @@ public class Check {
             jsonObject.remove("signature");
 
             json = jsonObject.toString();
-
-            // Display the retrieved fields
-            //System.out.println("Nonce: " + nonce);
-            //System.out.println("Signature: " + signature);
 
             // Read public key
             PublicKey publicKey = readPublicKey(pubKeyPath);
@@ -97,7 +93,6 @@ public class Check {
         long tenSecAgo = Instant.now().minusMillis(10000).toEpochMilli();
         long currTime = Instant.now().toEpochMilli();
         if (timestamp >= tenSecAgo && timestamp <= currTime) {
-            //System.out.println("Nonce timestamp is valid");
             if (!nonces.contains(random)) {
                 System.out.println("Nonce is valid");
                 return true; 

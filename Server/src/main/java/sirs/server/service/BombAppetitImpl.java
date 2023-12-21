@@ -35,7 +35,6 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
 
         // grab all restaurants from the database from the user who is requesting
         String user = request.getUser();
-        //System.out.println(user);
 
         ArrayList<String> restaurantsProtect = new ArrayList<>();
         var restaurants = server.getAllRestaurants(user);
@@ -61,13 +60,11 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
     @Override
     public void restaurant(BombAppetitOuterClass.RestaurantRequest request,
             StreamObserver<BombAppetitOuterClass.RestaurantResponse> responseObserver) {
-        //System.out.println(request);
 
         // grab the restaurant name from the request and look for it in the database
         String restaurantName = request.getRestaurantName();
         String user = request.getUser();
         String restaurantJson = server.getClientRestaurant(user, restaurantName);
-        // System.out.println(restaurantJson);
         JsonObject json = new JsonObject();
         try {
 			json = Protect.protect(restaurantJson, KEYPATH+"restaurantPriv.key", KEYPATH+user+"Pub.key");
@@ -92,7 +89,6 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         String restaurantName = request.getRestaurantName();
         String restaurantJson = request.getRestaurantJson();
         String user = request.getUser();
-        //System.out.println(user);
         JsonObject json = new JsonObject();
         try {
             var nonce = JsonParser.parseString(restaurantJson).getAsJsonObject().getAsJsonObject("restaurantInfo").get("nonce").getAsString();
@@ -107,12 +103,8 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //System.out.println(restaurantJson);
-        //System.out.println(json);
 
-        //server.updateRestaurant(user, restaurantName, restaurantJson);
         var reviews = JsonParser.parseString(json.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("reviews");
-        //System.out.println(reviews);
 
         server.updateAllRestaurantReviews(restaurantName, reviews.toString());
 
@@ -147,10 +139,6 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // System.out.println("------------");
-        // System.out.println(voucherJson);
-        // System.out.println(voucherUnprotect);
-        // System.out.println("------------");
 
         var voucher = JsonParser.parseString(voucherUnprotect.toString()).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers").get(0);
 
@@ -160,11 +148,8 @@ public class BombAppetitImpl extends BombAppetitGrpc.BombAppetitImplBase {
         var vouchers = restaurant.getAsJsonObject("restaurantInfo").getAsJsonArray("mealVouchers");
         vouchers.remove(voucher);
 
-        //System.out.println(restaurant);
         server.updateRestaurant(user, restaurantName, restaurant.toString());
 
-        //System.out.println(voucher.getAsJsonObject().get("code").getAsString());
-        //server.removeVoucher(user, restaurantName, voucher.getAsJsonObject().get("code").getAsString());
 
         UseVoucherResponse response = UseVoucherResponse
                 .newBuilder()

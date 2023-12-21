@@ -3,7 +3,6 @@ package main.java.secure_document;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 
 import javax.crypto.*;
@@ -20,7 +19,6 @@ import java.util.Base64;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
 
 public class Protect {
 
@@ -46,7 +44,6 @@ public class Protect {
 
     public static JsonObject protect(String originalJson, String restaurantPrivKeyPath, String userPubKeyPath) throws Exception {
         // Read private key of the restaurant and public key of the user
-        //System.out.println(System.getProperty("user.dir"));
         PrivateKey restaurantPrivateKey = readPrivateKey(restaurantPrivKeyPath);
         PublicKey userPublicKey = readPublicKey(userPubKeyPath);
 
@@ -106,7 +103,6 @@ public class Protect {
         String digitalSignature = createDigitalSignature(dataToSign, restaurantPrivateKey);
         originalJsonObject.addProperty("signature", digitalSignature);
         
-        //System.out.println(originalJsonObject);
         return originalJsonObject;
         
     }
