@@ -275,12 +275,15 @@ These channels were tested with the **Wireshark** tool, which allowed us to veri
 
 (_Explain what keys exist at the start and how are they distributed?_)
 
-In this project scenario is assumed that all users know a priori the public keys of the application server and vice-versa.
+In this project's scenario is assumed that all users know a priori the public keys of the application server and vice-versa.
 
 A **Certificate Authority (CA)** was used to generate the certificates used in the secure channels. The CA was implemented using the **OpenSSL** tool, which allowed us to generate the certificates and the private keys for each server.
 All certificates were signed by the CA, which allowed us to establish a secure communication between the parties.
 The users (clients), to connect to the server, must first know the server's certificate. This certificate is sent to the client before the server starts, and the client must trust it in order to establish a secure connection.
 The share of the server's certificate, in a real world scenario, can be done by a system administrator, which must send/install the certificate to the users machines before they can connect to the server.
+
+To establish a connection between the application server and the database, certificates are generated and signed by a root certificate. This root certificate is used to sign the certificates of the application server and the database server. This allows the application server to trust the database server, and vice-versa.
+To simplify the process of generating the certificates, all certificates are generated in the same machine and then sent via *scp* to the respective servers.
 
 ### 2.3. Security Challenge
 
