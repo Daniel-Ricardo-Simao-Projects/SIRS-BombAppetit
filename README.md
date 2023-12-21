@@ -2,11 +2,11 @@
 
 ## Team
 
-| Number | Name               | User                               | E-mail                                 |
-| ------ | ------------------ | ---------------------------------- | -------------------------------------- |
-| 99194  | Daniel Pereira     | <https://github.com/DaniPalma2002> | <mailto:danielppereira2002@tecnico.ulisboa.pt>      |
-| 99315  | Ricardo Toscanelli | <https://github.com/rtoscanelli>   | <mailto:bob@tecnico.ulisboa.pt>        |
-| 99328  | Simão Gato         | <https://github.com/SimaoGato>     | <mailto:simao.gato@tecnico.ulisboa.pt> |
+| Number | Name               | User                               | E-mail                                         |
+| ------ | ------------------ | ---------------------------------- | ---------------------------------------------- |
+| 99194  | Daniel Pereira     | <https://github.com/DaniPalma2002> | <mailto:danielppereira2002@tecnico.ulisboa.pt> |
+| 99315  | Ricardo Toscanelli | <https://github.com/rtoscanelli>   | <mailto:bob@tecnico.ulisboa.pt>                |
+| 99328  | Simão Gato         | <https://github.com/SimaoGato>     | <mailto:simao.gato@tecnico.ulisboa.pt>         |
 
 ## Contents
 
@@ -39,15 +39,16 @@ See the programming language and library versions used in the project in the [Ad
 
 Some machine configuration commands will require ssh enabled.
 
-
 ### Machine configurations
 
 Inside each machine, use Git to obtain a copy of all the scripts and code.
 
 ```sh
-git clone https://github.com/tecnico-sec/a37-daniel-ricardo-simao
+git clone git@github.com:tecnico-sec/a37-daniel-ricardo-simao.git
 ```
+
 Remind that the machines are configured as shown in the diagram above:
+
 - VM1: User
 - VM2: Gateway / Firewall
 - VM3: Server
@@ -60,21 +61,25 @@ Next we have custom instructions for each machine.
 This machine runs the **Server** application.
 
 Change to the directory with the scripts:
+
 ```sh
 cd a37-daniel-ricardo-simao/Configuration
 ```
 
 Change the permissions of the script:
+
 ```sh
 chmod +x generateServerCredentials.sh
 ```
 
 Run the script:
+
 ```sh
 ./generateServerCredentials.sh
 ```
 
 Send to the user machine the server and CA certificates:
+
 ```sh
 scp path/to/server.crt path/to/ca.crt <username of User VM>@<IP of User VM>:/path/to/a37-daniel-ricardo-simao/Configuration/
 ```
@@ -86,16 +91,19 @@ This machine runs the **User** (CLI) application.
 !! Make sure that the server and CA certificates are in the correct directory (Configuration).
 
 Change to the directory with the scripts:
+
 ```sh
 cd a37-daniel-ricardo-simao/Configuration
 ```
 
 Change the permissions of the script:
+
 ```sh
 chmod +x generateUserCredentials.sh
 ```
 
 Run the script:
+
 ```sh
 ./generateUserCredentials.sh
 ```
@@ -104,9 +112,14 @@ Run the script:
 
 This machine runs the **Database** application.
 
+```sh
+cd a37-daniel-ricardo-simao
+```
+
 #### Generating certificates for postgres, user and root (Certificate Authority):
 
 Generate keys
+
 ```sh
 openssl genrsa -out root.key
 ```
@@ -120,14 +133,19 @@ openssl genrsa -out user.key
 ```
 
 Create certificate request
+
 ```sh
 openssl req -new -key root.key -out root.csr
+
+ - You can leave all the fields blank (enter all)
 ```
+
 ```sh
 openssl req -new -key server.key -out server.csr
 
  - Common Name (e.g. server FQDN or YOUR name) []:<ip of database vm>
 ```
+
 ```sh
 openssl req -new -key user.key -out user.csr
 
@@ -135,38 +153,47 @@ openssl req -new -key user.key -out user.csr
 ```
 
 Create a database to be able to sign other certificates
+
 ```sh
 echo 01 > root.srl
 ```
 
 Self sign the root
+
 ```sh
 openssl x509 -req -days 365 -in root.csr -signkey root.key -out root.crt
 ```
 
 Sign the user and server with root certificate and key
+
 ```sh
 openssl x509 -req -days 365 -in server.csr -CA root.crt -CAkey root.key -out server.crt
 ```
+
 ```sh
 openssl x509 -req -days 365 -in user.csr -CA root.crt -CAkey root.key -out user.crt
 ```
 
 Convert them to .pem format
+
 ```sh
 openssl x509 -in root.crt -out root.pem
 ```
+
 ```sh
 openssl x509 -in server.crt -out server.pem
 ```
+
 ```sh
 openssl x509 -in user.crt -out user.pem
 ```
 
 #### Setup of postgres server
+
 ```sh
 sudo apt update
 ```
+
 ```sh
 sudo apt install postgresql postgresql-client
 ```
@@ -174,85 +201,101 @@ sudo apt install postgresql postgresql-client
 ```sh
 sudo systemctl start postgresql
 ```
+
 ```sh
 sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 ```
+
 ```sh
 sudo -u postgres psql -c "CREATE DATABASE restaurantsdb;"
 ```
+
 ```sh
 sudo systemctl enable postgresql
 ```
 
 #### Enable SSL on PostgreSQL:
+
 Go to postgresql main folder
+
 ```sh
-sudo cd /etc/postgresql/16/main     # 16 is postgres version 
+cd /etc/postgresql/16/main     # 16 is postgres version
 ```
 
 Copy server key, and root and server certificates to this folder
+
 ```sh
 sudo cp /path/to/server.pem /path/to/server.key /path/to/root.pem .
 ```
 
 Change file user to db user (postgres)
+
 ```sh
-sudo chown postgres:postgres root.pem server.key server.pem 
+sudo chown postgres:postgres root.pem server.key server.pem
 ```
 
 Change server.key permissions
+
 ```sh
 sudo chmod 0600 server.key
 ```
 
 Open your PostgreSQL configuration file (`postgresql.conf`) and set the following parameters:
+
 ```sh
 listen_addresses = '*'                  # what IP address(es) to listen on;
 
 ssl = on
 ssl_cert_file = '/path/to/server.pem'     # Path to your server certificate
 ssl_key_file = '/path/to/server.key'      # Path to your server private key
-ssl_ca_file = '/path/to/root.pem'         # Path to your root certificate 
+ssl_ca_file = '/path/to/root.pem'         # Path to your root certificate
 ```
 
 Modify the `pg_hba.conf` file to allow SSL connections to server ip (make sure the ip is the same as below, or adapt it to your network)
+
 ```sh
 hostssl	restaurantsdb	postgres	192.168.1.20/24		scram-sha-256	clientcert=verify-full
 ```
 
 Restart postgres
+
 ```sh
 sudo systemctl restart postgresql
 ```
 
 Verify logs to see if its running properly
+
 ```sh
 sudo cat /var/log/postgresql/postgresql-16-main.log
 ```
 
 #### Connect to the database remotely:
 
-change user.key to user.key.pk8
+change user.key to user.key.pk8 (note: back to the directory where you create the user.key)
+
 ```sh
 openssl pkcs8 -topk8 -outform DER -in user.key -out user.key.pk8 -nocrypt
 ```
 
 Send user key and certificate, and root certificate to the grpc server
+
 ```sh
 scp /path/to/user.pem /path/to/user.key.pk8 /path/to/user.key /path/to/root.pem <server vm user>@<server vm ip>:$HOME/
 ```
 
 To test if everything works, access postgres shell remotely from the terminal on the application server VM (VM3 in our configuration)
+
 ```sh
 psql "host=<db vm ip> user=postgres dbname=restaurantsdb sslcert=user.pem sslkey=user.key sslrootcert=root.pem sslmode=verify-full"
 ```
 
 #### Populate Database manually
+
 ```sh
 sudo -u postgres psql -d restaurantsdb
 ```
-Paste the information on the ***populate.sql*** file into the *postgres terminal*.
 
+Paste the information on the **_populate.sql_** file into the _postgres terminal_.
 
 ### Machine VM2
 
@@ -262,6 +305,7 @@ After every other machine is setup up, is time to add the firewall configuration
 Make sure that you have access to the iptables command.
 
 Add the following rules to the firewall:
+
 ```sh
 # Drop all incoming packets by default
 sudo iptables -F
@@ -284,15 +328,37 @@ sudo iptables -A FORWARD -i eth1 -p tcp -s 192.168.1.20 --sport 5000 -d 192.168.
 
 Now that all the networks and machines are up and running, ...
 
-_(give a tour of the best features of the application; add screenshots when relevant)_
+### Test the Secure Document Library
+
+To test the protect, check and unprotect from the library you should, in the main directory of the project:
 
 ```sh
-$ demo command
+mvn clean install compile
 ```
 
-_(replace with actual commands)_
+After, you can run your commands. You can use the input examples we have in Secure-document/inputs.
 
-_(IMPORTANT: show evidence of the security mechanisms in action; show message payloads, print relevant messages, perform simulated attacks to show the defenses in action, etc.)_
+For example, for menu 1, you can:
+
+```sh
+protect Secure-document/inputs/menu1.json Secure-document/inputs/keys/restaurantPriv.key Secure-document/inputs/keys/simaoPub.key Secure-document/inputs/menu1out.json
+```
+
+```sh
+check Secure-document/inputs/menu1out.json Secure-document/inputs/keys/restaurantPub.key
+```
+
+```sh
+unprotect Secure-document/inputs/menu1out.json Secure-document/inputs/keys/simaoPriv.key Secure-document/inputs/menu1deciphered.json
+```
+
+To analyze, you can just check the output to see our library in action.
+
+### Test functionalities
+
+To test the functionalities, it's very straightforward going from the initial menu to the option you want to choose. The menu it should appear when running all the components is below:
+
+![Initial Menu](img/menu.png)
 
 This concludes the demonstration.
 
