@@ -3,7 +3,7 @@
 # This script generates credentials for the gRPC client.
 
 # Clean up old credentials
-rm -rf *.crt *.csr *.key *.srl *.p12 *.keystore
+rm -rf *.csr *.key *.srl *.p12 *.keystore
 rm -rf ../User/src/main/resources/*
 
 # Generate Client Truststore
