@@ -80,7 +80,6 @@ public class BombAppetit {
                 nonces.add(random);
                 return json.toString();
             }
-            nonces.add(random);
             json = Unprotect.unprotectString(restSecure, KEYPATH+user+"Priv.key");
         } catch (Exception e) {
             e.printStackTrace();
@@ -169,7 +168,6 @@ public class BombAppetit {
         if (restaurant.equals("")) {
             return;
         }
-        System.out.println(restaurant);
         var menu = JsonParser.parseString(restaurant).getAsJsonObject().getAsJsonObject("restaurantInfo").getAsJsonArray("menu");
         System.out.println("\nMenu: ");
         for (JsonElement item : menu) {

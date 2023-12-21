@@ -59,7 +59,7 @@ public class Protect {
         JsonObject originalJsonObject = JsonParser.parseString(originalJson).getAsJsonObject();
         
         if (mealVouchersArray.size() == 0) {
-            System.out.println("PROTECT: THERE IS NO VOUCHERS");
+            System.out.println("PROTECT: there is no vouchers");
             SecureRandom random = new SecureRandom();
             byte[] iv = new byte[12]; // GCM recommended IV size is 12 bytes
             random.nextBytes(iv);
