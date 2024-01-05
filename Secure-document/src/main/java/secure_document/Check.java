@@ -91,7 +91,7 @@ public class Check {
 
         // Check if the timestamp is within the last 10 seconds
         long tenSecAgo = Instant.now().minusMillis(10000).toEpochMilli();
-        long currTime = Instant.now().toEpochMilli();
+        long currTime = Instant.now().plusMillis(2000).toEpochMilli(); // add time to fix clock skew
         if (timestamp >= tenSecAgo && timestamp <= currTime) {
             if (!nonces.contains(random)) {
                 System.out.println("Nonce is valid");
